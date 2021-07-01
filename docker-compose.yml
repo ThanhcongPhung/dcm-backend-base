@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  cds_backend-base:
+    build: .
+    restart: always
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      - PORT=${PORT}
