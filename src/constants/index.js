@@ -1,1 +1,31 @@
-module.exports = {};
+const CAMPAIGN_STATUS = {
+  WAITING: 'WAITING',
+  RUNNING: 'RUNNING',
+  PAUSE: 'PAUSE',
+  END: 'END',
+};
+
+const PARTICIPATION_STATUS = {
+  INVITED: 'INVITED',
+  JOINED: 'JOINED',
+};
+
+const CAMPAIGN_VISIBILITY = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE',
+};
+
+const COLLECT_DATA_SYSTEM = {
+  FAQ: 'FAQ',
+  SLU: 'SLU',
+  ASR: 'ASR',
+  CHB: 'CHB',
+  CHH: 'CHH',
+};
+
+module.exports = {
+  CAMPAIGN_STATUS,
+  PARTICIPATION_STATUS,
+  CAMPAIGN_VISIBILITY,
+  COLLECT_DATA_SYSTEM,
+};

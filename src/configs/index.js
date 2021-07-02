@@ -1,3 +1,6 @@
+const { PORT, MONGO_URI } = process.env;
+
 module.exports = {
-  PORT: process.env.PORT || 3000,
+  PORT: PORT || 3000,
+  MONGO_URI,
 };

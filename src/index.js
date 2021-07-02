@@ -11,6 +11,7 @@ const snakeCaseRes = require('./middlewares/snakeCaseRes');
 const errorHandler = require('./middlewares/errorHandler');
 
 require('dotenv').config();
+require('./models');
 
 const { PORT } = require('./configs');
 
