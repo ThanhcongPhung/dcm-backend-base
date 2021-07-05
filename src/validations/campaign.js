@@ -5,7 +5,7 @@ const {
   COLLECT_DATA_SYSTEM,
 } = require('../constants');
 
-const campaign = {
+const createCampaign = {
   body: Joi.object({
     name: Joi.string().trim().required(),
     desc: Joi.string().trim().required(),
@@ -32,5 +32,5 @@ const campaign = {
 };
 
 module.exports = {
-  campaignValidate: validate(campaign, { keyByField: true }),
+  createCampaignValidate: validate(createCampaign, { keyByField: true }),
 };

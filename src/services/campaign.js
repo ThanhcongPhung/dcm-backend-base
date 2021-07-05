@@ -1,4 +1,6 @@
 const { CAMPAIGN_STATUS } = require('../constants');
+const CustomError = require('../errors/CustomError');
+const code = require('../errors/code');
 const campaignDao = require('../daos/campaign');
 
 const createCampaign = async (createFields) => {
@@ -9,6 +11,17 @@ const createCampaign = async (createFields) => {
   return campaign;
 };
 
+const updateCampaign = async (campaignId, updateFields) => {
+  const campaignExist = await campaignDao.findCampaign(campaignId);
+
+  if (!campaignExist)
+    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
+
+  const campaign = await campaignDao.updateCampaign(campaignId, updateFields);
+  return campaign;
+};
+
 module.exports = {
   createCampaign,
+  updateCampaign,
 };
