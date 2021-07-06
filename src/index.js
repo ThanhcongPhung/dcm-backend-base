@@ -29,7 +29,6 @@ app.use(snakeCaseRes());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 require('./routes')(app);
-require('./services/init');
 
 app.use(errorHandler);
 
