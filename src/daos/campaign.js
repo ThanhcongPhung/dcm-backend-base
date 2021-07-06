@@ -1,6 +1,29 @@
 const Campaign = require('../models/campaign');
 const daoUtils = require('./utils');
 
+const findCampaigns = async ({
+  search,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+}) => {
+  const { documents: campaigns, count } = await daoUtils.findAll(
+    Campaign,
+    ['name'],
+    {
+      search,
+      query,
+      offset,
+      limit,
+      fields,
+      sort,
+    },
+  );
+  return { campaigns, count };
+};
+
 const findCampaign = async (condition) => {
   const campaign = await daoUtils.findOne(Campaign, condition);
   return campaign;
@@ -23,6 +46,7 @@ const deleteCampaign = async (campaignId) => {
 };
 
 module.exports = {
+  findCampaigns,
   findCampaign,
   createCampaign,
   updateCampaign,
