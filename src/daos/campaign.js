@@ -18,8 +18,13 @@ const updateCampaign = async (id, updateFields) => {
   return campaign;
 };
 
+const deleteCampaign = async (campaignId) => {
+  await Campaign.findByIdAndDelete(campaignId);
+};
+
 module.exports = {
   findCampaign,
   createCampaign,
   updateCampaign,
+  deleteCampaign,
 };

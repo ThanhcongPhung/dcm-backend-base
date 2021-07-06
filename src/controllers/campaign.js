@@ -16,7 +16,14 @@ const updateCampaign = async (req, res) => {
   return res.send({ status: 1, result: campaign });
 };
 
+const deleteCampaign = async (req, res) => {
+  const { campaignId } = req.params;
+  await campaignService.deleteCampaign(campaignId);
+  return res.send({ status: 1 });
+};
+
 module.exports = {
   createCampaign,
   updateCampaign,
+  deleteCampaign,
 };
