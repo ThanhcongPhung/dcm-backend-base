@@ -25,6 +25,12 @@ const getCampaigns = async (req, res) => {
   });
 };
 
+const getCampaign = async (req, res) => {
+  const { campaignId } = req.params;
+  const campaign = await campaignService.getCampaign(campaignId);
+  return res.send({ status: 1, result: campaign });
+};
+
 const createCampaign = async (req, res) => {
   const createFields = req.body;
   const campaign = await campaignService.createCampaign(createFields);
@@ -49,6 +55,7 @@ const deleteCampaign = async (req, res) => {
 
 module.exports = {
   getCampaigns,
+  getCampaign,
   createCampaign,
   updateCampaign,
   deleteCampaign,

@@ -39,6 +39,14 @@ const getCampaigns = async ({
   return { campaigns, count };
 };
 
+const getCampaign = async (campaignId) => {
+  const campaign = await campaignDao.findCampaign(campaignId);
+  if (!campaign)
+    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
+
+  return campaign;
+};
+
 const createCampaign = async (createFields) => {
   const campaign = await campaignDao.createCampaign({
     ...createFields,
@@ -67,6 +75,7 @@ const deleteCampaign = async (campaignId) => {
 
 module.exports = {
   getCampaigns,
+  getCampaign,
   createCampaign,
   updateCampaign,
   deleteCampaign,
