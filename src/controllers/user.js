@@ -12,7 +12,4 @@ const getUser = async (req, res) => {
   return res.send({ status: 1, result: user });
 };
 
-module.exports = {
-  updateUser,
-  getUser,
-};
+module.exports = { updateUser, getUser };

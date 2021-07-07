@@ -3,6 +3,7 @@ const {
   PARTICIPATION_STATUS,
   CAMPAIGN_VISIBILITY,
   COLLECT_DATA_SYSTEM,
+  EVENT_JOIN_CAMPAIGN,
 } = require('../constants');
 
 const createCampaign = {
@@ -31,6 +32,17 @@ const createCampaign = {
   }),
 };
 
+const addUser = {
+  body: Joi.object({
+    userId: Joi.string(),
+    event: Joi.string()
+      .trim()
+      .valid(...Object.values(EVENT_JOIN_CAMPAIGN))
+      .required(),
+  }),
+};
+
 module.exports = {
   createCampaignValidate: validate(createCampaign, { keyByField: true }),
+  userJoinValidate: validate(addUser, { keyByField: true }),
 };

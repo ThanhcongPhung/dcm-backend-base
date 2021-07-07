@@ -1,5 +1,5 @@
 const authService = require('../services/auth');
-const { SSO_EVENT } = require('../constants/params');
+const { SSO_EVENT } = require('../constants');
 
 const actionWebhookSso = async (req, res) => {
   const { event, data } = req.body;
