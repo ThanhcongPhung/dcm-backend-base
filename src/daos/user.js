@@ -11,8 +11,8 @@ const findUser = async (condition) => {
   return user;
 };
 
-const updateUser = async (ssoUserId, updateFields) => {
-  const user = await User.findOneAndUpdate({ ssoUserId }, updateFields, {
+const updateUser = async (id, updateFields) => {
+  const user = await User.findByIdAndUpdate(id, updateFields, {
     new: false,
   }).lean();
   return user;
