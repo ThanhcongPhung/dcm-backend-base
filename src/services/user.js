@@ -10,6 +10,13 @@ const updateUser = async (userId, updateFields) => {
   return user;
 };
 
+const getUser = async (userId) => {
+  const user = await userDao.findUser({ _id: userId });
+  if (!user) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
+  return user;
+};
+
 module.exports = {
   updateUser,
+  getUser,
 };
