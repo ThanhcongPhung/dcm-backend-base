@@ -11,7 +11,15 @@ const findUser = async (condition) => {
   return user;
 };
 
+const updateUser = async (id, updateFields) => {
+  const user = await User.findByIdAndUpdate(id, updateFields, {
+    new: false,
+  }).lean();
+  return user;
+};
+
 module.exports = {
   createUser,
   findUser,
+  updateUser,
 };
