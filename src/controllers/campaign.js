@@ -53,10 +53,18 @@ const deleteCampaign = async (req, res) => {
   return res.send({ status: 1 });
 };
 
+const addUser = async (req, res) => {
+  const { campaignId } = req.params;
+  const { userId, event } = req.body;
+  const joinResult = await campaignService.addUser(userId, campaignId, event);
+  return res.send({ status: 1, result: joinResult });
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
   createCampaign,
   updateCampaign,
   deleteCampaign,
+  addUser,
 };

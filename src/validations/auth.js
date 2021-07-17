@@ -1,5 +1,5 @@
 const { Joi, validate } = require('express-validation');
-const { SSO_EVENT } = require('../constants/params');
+const { SSO_EVENT } = require('../constants');
 
 const ssoUser = {
   body: Joi.object({
