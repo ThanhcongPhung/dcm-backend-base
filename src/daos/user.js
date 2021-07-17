@@ -17,9 +17,21 @@ const updateUser = async (id, updateFields) => {
   }).lean();
   return user;
 };
+const findUsers = async ({ search, query, offset, limit, fields, sort }) => {
+  const { documents: users, count } = await daoUtils.findAll(User, ['email'], {
+    search,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+  });
+  return { users, count };
+};
 
 module.exports = {
   createUser,
   findUser,
   updateUser,
+  findUsers,
 };
