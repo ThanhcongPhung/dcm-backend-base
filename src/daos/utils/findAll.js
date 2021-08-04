@@ -15,7 +15,7 @@ async function findAll(
     .map((field) => {
       return model.schema.paths[field].instance === 'Number'
         ? { [field]: parseInt(search, 10) }
-        : { [field]: new RegExp(search, 'g') };
+        : { [field]: new RegExp(search, 'gi') };
     });
 
   const count = await model.countDocuments(

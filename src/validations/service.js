@@ -18,9 +18,11 @@ const createService = {
 
 const updateService = {
   body: Joi.object({
+    name: Joi.string(),
     desc: Joi.string(),
     url: Joi.string(),
     inputs: Joi.array().items(Joi.string()),
+    actions: Joi.array().items(Joi.string()),
     serviceOwner: Joi.array().items(
       Joi.object({
         user: Joi.string(),
