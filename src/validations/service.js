@@ -16,6 +16,21 @@ const createService = {
   }),
 };
 
+const updateService = {
+  body: Joi.object({
+    desc: Joi.string(),
+    url: Joi.string(),
+    inputs: Joi.array().items(Joi.string()),
+    serviceOwner: Joi.array().items(
+      Joi.object({
+        user: Joi.string(),
+        role: Joi.string(),
+      }),
+    ),
+  }),
+};
+
 module.exports = {
   createServiceValidate: validate(createService, { keyByField: true }),
+  updateServiceValidate: validate(updateService, { keyByField: true }),
 };

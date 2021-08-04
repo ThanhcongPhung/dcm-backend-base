@@ -10,6 +10,17 @@ const createService = async (createFields) => {
   return newService;
 };
 
+const updateService = async (serviceId, updateFields) => {
+  const serviceExist = await serviceDao.findService(serviceId);
+
+  if (!serviceExist)
+    throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
+
+  const service = await serviceDao.updateService(serviceId, updateFields);
+  return service;
+};
+
 module.exports = {
   createService,
+  updateService,
 };
