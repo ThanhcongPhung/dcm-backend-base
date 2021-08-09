@@ -4,16 +4,29 @@ const getCampaigns = async (req, res) => {
   const { search, fields, offset, limit, sort } = req.query;
   const { campaignVisibility, status, collectDataSystem } = req.body;
 
-  const { campaigns, count } = await campaignService.getCampaigns({
-    search,
-    fields,
-    offset,
-    limit,
-    sort,
-    campaignVisibility,
-    status,
-    collectDataSystem,
-  });
+  const query = {};
+
+  const statusFilter = status ? { status } : {};
+  const campaignVisibilityFilter = campaignVisibility
+    ? { campaignVisibility }
+    : {};
+  const collectDataSystemFilter = collectDataSystem
+    ? { collectDataSystem }
+    : {};
+
+  query.query = {
+    ...statusFilter,
+    ...campaignVisibilityFilter,
+    ...collectDataSystemFilter,
+  };
+  if (search) query.search = search;
+  if (fields) query.fields = fields.split(',');
+  if (offset) query.offset = parseInt(offset, 10);
+  if (limit) query.limit = parseInt(limit, 10);
+  if (sort) query.sort = sort.split(',');
+
+  const { campaigns, count } = await campaignService.getCampaigns(query);
+
   return res.send({
     status: 1,
     result: {

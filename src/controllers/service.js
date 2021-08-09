@@ -2,13 +2,16 @@ const serviceService = require('../services/service');
 
 const getServices = async (req, res) => {
   const { search, fields, offset, limit, sort } = req.query;
-  const { services, count } = await serviceService.getServices({
-    search,
-    fields,
-    offset,
-    limit,
-    sort,
-  });
+
+  const query = {};
+
+  if (search) query.search = search;
+  if (fields) query.fields = fields.split(',');
+  if (offset) query.offset = parseInt(offset, 10);
+  if (limit) query.limit = parseInt(limit, 10);
+  if (sort) query.sort = sort.split(',');
+  const { services, count } = await serviceService.getServices(query);
+
   return res.send({
     status: 1,
     result: {

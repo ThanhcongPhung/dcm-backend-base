@@ -8,39 +8,15 @@ const {
   EVENT_JOIN_CAMPAIGN,
 } = require('../constants/index');
 
-const getCampaigns = async ({
-  search,
-  fields,
-  offset,
-  limit,
-  sort,
-  status,
-  campaignVisibility,
-  collectDataSystem,
-}) => {
-  const query = {};
-
-  const statusFilter = status ? { status } : {};
-  const campaignVisibilityFilter = campaignVisibility
-    ? { campaignVisibility }
-    : {};
-  const collectDataSystemFilter = collectDataSystem
-    ? { collectDataSystem }
-    : {};
-
-  query.query = {
-    ...statusFilter,
-    ...campaignVisibilityFilter,
-    ...collectDataSystemFilter,
-  };
-
-  if (search) query.search = search;
-  if (fields) query.fields = fields.split(',');
-  if (offset) query.offset = parseInt(offset, 10);
-  if (limit) query.limit = parseInt(limit, 10);
-  if (sort) query.sort = sort.split(',');
-
-  const { campaigns, count } = await campaignDao.findCampaigns(query);
+const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
+  const { campaigns, count } = await campaignDao.findCampaigns({
+    search,
+    fields,
+    offset,
+    limit,
+    sort,
+    query,
+  });
   return { campaigns, count };
 };
 

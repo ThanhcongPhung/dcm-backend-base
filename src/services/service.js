@@ -2,16 +2,15 @@ const serviceDao = require('../daos/service');
 const CustomError = require('../errors/CustomError');
 const code = require('../errors/code');
 
-const getServices = async ({ search, fields, offset, limit, sort }) => {
-  const query = {};
-
-  if (search) query.search = search;
-  if (fields) query.fields = fields.split(',');
-  if (offset) query.offset = parseInt(offset, 10);
-  if (limit) query.limit = parseInt(limit, 10);
-  if (sort) query.sort = sort.split(',');
-
-  const { services, count } = await serviceDao.findServices(query);
+const getServices = async ({ search, fields, offset, limit, sort, query }) => {
+  const { services, count } = await serviceDao.findServices({
+    search,
+    fields,
+    offset,
+    limit,
+    sort,
+    query,
+  });
   return { services, count };
 };
 

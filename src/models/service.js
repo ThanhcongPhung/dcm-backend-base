@@ -4,11 +4,11 @@ const { ObjectId } = mongoose.Types;
 const serviceSchema = new mongoose.Schema(
   {
     name: String,
-    desc: String,
+    description: String,
     url: String,
     inputs: [String],
     actions: [String],
-    serviceOwner: [
+    owner: [
       {
         user: { type: ObjectId, ref: 'User' },
         role: { type: ObjectId, ref: 'Role' },
