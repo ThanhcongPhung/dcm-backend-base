@@ -27,6 +27,8 @@ const getCampaigns = async (req, res) => {
   if (offset) query.offset = parseInt(offset, 10);
   if (limit) query.limit = parseInt(limit, 10);
   if (sort) query.sort = sort.split(',');
+  if (userId) query.userId = userId;
+  if (pageTypeByRole) query.pageTypeByRole = pageTypeByRole;
 
   const { campaigns, count } = await campaignService.getCampaigns(query);
 
