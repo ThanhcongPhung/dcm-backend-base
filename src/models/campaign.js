@@ -1,22 +1,27 @@
 const mongoose = require('mongoose');
 
+const { ObjectId } = mongoose.Types;
 const campaignSchema = new mongoose.Schema(
   {
     name: String,
     desc: String,
-    avatar: String,
+    image: String,
     startTime: Date,
     endTime: Date,
     participants: [
       {
         _id: false,
-        user: String,
+        user: { type: ObjectId, ref: 'User' },
+        role: { type: ObjectId, ref: 'Role' },
         status: String,
       },
     ],
     status: String,
     campaignVisibility: String,
-    collectDataSystem: String,
+    service: { type: ObjectId, ref: 'Service' },
+    action: String,
+    appId: String,
+    botId: String,
   },
   {
     timestamps: true,
