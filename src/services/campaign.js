@@ -2,7 +2,10 @@ const { CAMPAIGN_STATUS } = require('../constants');
 const CustomError = require('../errors/CustomError');
 const code = require('../errors/code');
 const userDao = require('../daos/user');
+const intentDao = require('../daos/intent');
+const serviceDao = require('../daos/service');
 const campaignDao = require('../daos/campaign');
+const botService = require('./bot');
 const {
   PARTICIPATION_STATUS,
   EVENT_JOIN_CAMPAIGN,
@@ -17,6 +20,7 @@ const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
     sort,
     query,
   });
+
   return { campaigns, count };
 };
 
@@ -29,19 +33,44 @@ const getCampaign = async (campaignId) => {
 };
 
 const createCampaign = async (createFields) => {
+  const { action, botId } = createFields;
+  const serviceId = createFields.service;
+  const service = await serviceDao.findService(serviceId);
+  if (!service)
+    throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
+  const actionExist = service.actions.find((item) => item === action);
+  if (!actionExist)
+    throw new CustomError(
+      code.BAD_REQUEST,
+      'Service does not have this action',
+    );
   const campaign = await campaignDao.createCampaign({
     ...createFields,
     status: CAMPAIGN_STATUS.WAITING,
   });
+  if (botId) {
+    const { result } = await botService.getIntents(botId);
+    const intents = result.intents.map((item) => {
+      return { ...item, campaignId: campaign.id };
+    });
+    if (intents) await intentDao.createIntents(intents);
+  }
   return campaign;
 };
 
 const updateCampaign = async (campaignId, updateFields) => {
   const campaignExist = await campaignDao.findCampaign(campaignId);
-
+  const { botId } = updateFields;
   if (!campaignExist)
     throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
-
+  if (botId) {
+    await intentDao.deleteIntents({ campaignId });
+    const { result } = await botService.getIntents(botId);
+    const intents = result.intents.map((item) => {
+      return { ...item, campaignId: campaign.id };
+    });
+    if (intents) await intentDao.createIntents(intents);
+  }
   const campaign = await campaignDao.updateCampaign(campaignId, updateFields);
   return campaign;
 };
@@ -50,7 +79,7 @@ const deleteCampaign = async (campaignId) => {
   const campaignExist = await campaignDao.findCampaign(campaignId);
   if (!campaignExist)
     throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
-
+  await intentDao.deleteIntents({ campaignId });
   await campaignDao.deleteCampaign(campaignId);
 };
 

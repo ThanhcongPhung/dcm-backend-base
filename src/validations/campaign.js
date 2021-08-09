@@ -24,8 +24,8 @@ const createCampaign = {
       .trim()
       .valid(...Object.values(CAMPAIGN_VISIBILITY))
       .required(),
-    service: Joi.string().required,
-    action: Joi.string().required,
+    service: Joi.string().required(),
+    action: Joi.string().required(),
     appId: Joi.string(),
     botId: Joi.string(),
   }),
