@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Types;
 const campaignSchema = new mongoose.Schema(
   {
     name: String,
-    desc: String,
+    description: String,
     image: String,
     startTime: Date,
     endTime: Date,

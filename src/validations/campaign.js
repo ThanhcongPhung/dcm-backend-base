@@ -8,7 +8,7 @@ const {
 const createCampaign = {
   body: Joi.object({
     name: Joi.string().trim().required(),
-    desc: Joi.string().trim().required(),
+    description: Joi.string().trim().required(),
     image: Joi.string(),
     startTime: Joi.date().min(new Date()).required(),
     endTime: Joi.date().min(new Date()).required(),
