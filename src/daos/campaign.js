@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongoose').Types;
 const Campaign = require('../models/campaign');
 const daoUtils = require('./utils');
 const {
@@ -55,11 +56,26 @@ const findCampaigns = async ({
 };
 
 const findCampaign = async (condition) => {
-  const campaign = await Campaign.findOne(condition)
-    .lean()
-    .populate('service')
-    .exec();
-  return campaign;
+  if (ObjectId.isValid(condition)) {
+    const campaign = await Campaign.findById(condition)
+      .lean()
+      .populate('service')
+      .populate('participants.user')
+      .populate('participants.role')
+      .exec();
+    return campaign;
+  }
+
+  if (typeof condition === 'object' && condition !== null) {
+    const campaign = await Campaign.findOne(condition)
+      .lean()
+      .populate('service')
+      .populate('participants.user')
+      .populate('participants.role')
+      .exec();
+    return campaign;
+  }
+  throw new Error('Invalid query');
 };
 
 const createCampaign = async (createFields) => {

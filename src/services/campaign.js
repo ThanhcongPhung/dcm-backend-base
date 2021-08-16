@@ -246,6 +246,12 @@ const syncIntents = async (campaignId, botId) => {
     ];
   }, []);
   await intentDao.createIntents(newIntents);
+}
+
+const getUsers = async (campaign) => {
+  const { participants } = campaign;
+  const users = participants.map((participant) => participant.user);
+  return users;
 };
 
 module.exports = {
@@ -260,4 +266,5 @@ module.exports = {
   updateStatusCampaign,
   getIntents,
   syncIntents,
+  getUsers,
 };
