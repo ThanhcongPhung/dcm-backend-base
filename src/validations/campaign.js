@@ -1,5 +1,5 @@
 const { Joi, validate } = require('express-validation');
-const { CAMPAIGN_VISIBILITY } = require('../constants');
+const { CAMPAIGN_VISIBILITY, CAMPAIGN_STATUS } = require('../constants');
 
 const createCampaign = {
   body: Joi.object({
@@ -40,8 +40,17 @@ const updateServiceCampaign = {
   }),
 };
 
+const updateStatusCampaign = {
+  body: Joi.object({
+    status: Joi.string()
+      .valid(...Object.values(CAMPAIGN_STATUS))
+      .required(),
+  }),
+};
+
 module.exports = {
   createCampaignValidate: validate(createCampaign, { keyByField: true }),
   updateCampaignValidate: validate(updateCampaign, { keyByField: true }),
   updateServiceValidate: validate(updateServiceCampaign, { keyByField: true }),
+  updateStatusValidate: validate(updateStatusCampaign, { keyByField: true }),
 };
