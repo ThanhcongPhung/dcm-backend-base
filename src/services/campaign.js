@@ -246,13 +246,14 @@ const syncIntents = async (campaignId, botId) => {
     ];
   }, []);
   await intentDao.createIntents(newIntents);
-}
-
-const getUsers = async (campaign) => {
-  const { participants } = campaign;
-  const users = participants.map((participant) => participant.user);
-  return users;
 };
+
+const getParticipants = (participants) =>
+  participants.map((participant) => ({
+    userId: participant.user._id,
+    email: participant.user.email,
+    roleId: participant.role,
+  }));
 
 module.exports = {
   getCampaigns,
@@ -266,5 +267,5 @@ module.exports = {
   updateStatusCampaign,
   getIntents,
   syncIntents,
-  getUsers,
+  getParticipants,
 };

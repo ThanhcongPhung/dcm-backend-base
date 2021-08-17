@@ -110,12 +110,14 @@ const syncIntents = async (req, res) => {
   } = req;
   await campaignService.syncIntents(campaignId, botId);
   return res.send({ status: 1 });
-}
+};
 
 const getParticipants = async (req, res) => {
-  const { campaign } = req;
-  const users = await campaignService.getUsers(campaign);
-  return res.send({ status: 1, result: users });
+  const {
+    campaign: { participants },
+  } = req;
+  const result = await campaignService.getParticipants(participants);
+  return res.send({ status: 1, result });
 };
 
 module.exports = {
