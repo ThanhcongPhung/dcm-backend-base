@@ -1,8 +1,16 @@
 const campaignService = require('../services/campaign');
 
 const getCampaigns = async (req, res) => {
-  const { search, fields, offset, limit, sort } = req.query;
-  const { campaignVisibility, status, collectDataSystem } = req.body;
+  const {
+    search,
+    fields,
+    offset,
+    limit,
+    sort,
+    campaignVisibility,
+    status,
+    serviceId: service,
+  } = req.query;
 
   const query = {};
 
@@ -10,14 +18,12 @@ const getCampaigns = async (req, res) => {
   const campaignVisibilityFilter = campaignVisibility
     ? { campaignVisibility }
     : {};
-  const collectDataSystemFilter = collectDataSystem
-    ? { collectDataSystem }
-    : {};
+  const serviceFilter = service ? { service } : {};
 
   query.query = {
     ...statusFilter,
     ...campaignVisibilityFilter,
-    ...collectDataSystemFilter,
+    ...serviceFilter,
   };
   if (search) query.search = search;
   if (fields) query.fields = fields.split(',');
@@ -45,17 +51,22 @@ const getCampaign = async (req, res) => {
 };
 
 const createCampaign = async (req, res) => {
-  const createFields = req.body;
-  const campaign = await campaignService.createCampaign(createFields);
+  const campaign = await campaignService.createCampaign(req.body);
   return res.send({ status: 1, result: campaign });
 };
 
 const updateCampaign = async (req, res) => {
   const { campaignId } = req.params;
-  const updateFields = req.body;
-  const campaign = await campaignService.updateCampaign(
+  const campaign = await campaignService.updateCampaign(campaignId, req.body);
+
+  return res.send({ status: 1, result: campaign });
+};
+
+const updateServiceCampaign = async (req, res) => {
+  const { campaignId } = req.params;
+  const campaign = await campaignService.updateServiceCampaign(
     campaignId,
-    updateFields,
+    req.body,
   );
   return res.send({ status: 1, result: campaign });
 };
@@ -78,6 +89,7 @@ module.exports = {
   getCampaign,
   createCampaign,
   updateCampaign,
+  updateServiceCampaign,
   deleteCampaign,
   addUser,
 };
