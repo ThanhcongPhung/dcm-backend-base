@@ -1,16 +1,12 @@
 const CustomError = require('../errors/CustomError');
 const code = require('../errors/code');
-const userDao = require('../daos/user');
 const intentDao = require('../daos/intent');
 const serviceDao = require('../daos/service');
 const campaignDao = require('../daos/campaign');
 const botService = require('./bot');
+const roleDao = require('../daos/role');
 const serviceCampaign = require('./serviceCampaign');
-const {
-  PARTICIPATION_STATUS,
-  EVENT_JOIN_CAMPAIGN,
-  CAMPAIGN_STATUS,
-} = require('../constants/index');
+const { CAMPAIGN_STATUS, CAMPAIGN_USER_ROLE } = require('../constants/index');
 
 const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
   const { campaigns, count } = await campaignDao.findCampaigns({
@@ -24,13 +20,9 @@ const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
   return { campaigns, count };
 };
 
-const getCampaign = async (campaignId) => {
-  const campaign = await campaignDao.findCampaign(campaignId);
-  if (!campaign)
-    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
-
+const getCampaign = async (campaign) => {
   const response = await serviceCampaign.getServiceCampaign(
-    campaignId,
+    campaign._id,
     campaign.service.url,
   );
   if (!response.status) {
@@ -71,6 +63,7 @@ const createCampaign = async ({
     action,
     appId,
     botId,
+    participants: [],
     status: CAMPAIGN_STATUS.DRAFT,
   });
   if (botId) {
@@ -85,7 +78,7 @@ const createCampaign = async ({
   return campaign;
 };
 
-const updateCampaign = async (campaignId, updateFields) => {
+const updateCampaign = async (campaign, updateFields) => {
   const {
     name,
     description,
@@ -97,20 +90,16 @@ const updateCampaign = async (campaignId, updateFields) => {
     botId,
   } = updateFields;
 
-  const campaignExist = await campaignDao.findCampaign(campaignId);
-  if (!campaignExist)
-    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
-
-  if (botId && botId !== campaignExist.botId) {
-    await intentDao.deleteIntents({ campaignId });
+  if (botId && botId !== campaign.botId) {
+    await intentDao.deleteIntents({ campaignId: campaign._id });
     const { result } = await botService.getIntents(botId);
     const intents = result.intents.map((item) => {
-      return { ...item, campaignId };
+      return { ...item, campaignId: campaign._id };
     });
-    if (intents.length) await intentDao.createIntents(intents);
+    await intentDao.createIntents(intents);
   }
 
-  const campaign = await campaignDao.updateCampaign(campaignId, {
+  const newCampaign = await campaignDao.updateCampaign(campaign._id, {
     name,
     description,
     campaignVisibility,
@@ -120,76 +109,66 @@ const updateCampaign = async (campaignId, updateFields) => {
     appId,
     botId,
   });
-  return campaign;
+  return newCampaign;
 };
 
-const updateServiceCampaign = async (campaignId, detailCampaign) => {
-  const campaignExist = await campaignDao.findCampaign(campaignId);
-  if (!campaignExist)
-    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
-
+const updateServiceCampaign = async (campaign, detailCampaign) => {
   const result = await serviceCampaign.updateServiceCampaign(
-    campaignId,
-    campaignExist.service.url,
+    campaign._id,
+    campaign.service.url,
     detailCampaign,
   );
   if (!result.status) {
     throw new Error('Update failure');
   }
 
-  const campaign = await campaignDao.updateCampaign(campaignId, {
+  const newCampaign = await campaignDao.updateCampaign(campaign._id, {
     status:
-      campaignExist.status === CAMPAIGN_STATUS.DRAFT
+      campaign.status === CAMPAIGN_STATUS.DRAFT
         ? CAMPAIGN_STATUS.WAITING
-        : campaignExist.status,
+        : campaign.status,
   });
-  return campaign;
+  return newCampaign;
 };
 
 const deleteCampaign = async (campaignId) => {
-  const campaignExist = await campaignDao.findCampaign(campaignId);
-  if (!campaignExist)
-    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
   await intentDao.deleteIntents({ campaignId });
   await campaignDao.deleteCampaign(campaignId);
 };
 
-const addUser = async (userId, campaignId, event) => {
-  const campaign = await campaignDao.findCampaign({ _id: campaignId });
-  if (!campaign)
-    throw new CustomError(code.BAD_REQUEST, 'Campaign is not exists');
-
-  const user = await userDao.findUser({ _id: userId });
-  if (!user) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
-  const joinedUser = campaign.participants.find(
-    (parItem) => parItem.user === userId,
-  );
-  if (!joinedUser && event === EVENT_JOIN_CAMPAIGN.ACCEPT_INVITE)
-    throw new CustomError(code.BAD_REQUEST, 'You are not invited');
-  if (joinedUser && joinedUser.status === PARTICIPATION_STATUS.JOINED)
-    throw new CustomError(code.BAD_REQUEST, 'User joined');
+const joinCampaign = async (user, campaign) => {
+  const role = await roleDao.findRole({ name: CAMPAIGN_USER_ROLE.USER });
+  if (!role) throw new CustomError(code.BAD_REQUEST, 'Role is not exists');
 
   let { participants } = campaign;
-  if (event === EVENT_JOIN_CAMPAIGN.JOIN) {
-    participants = [
-      ...campaign.participants,
-      { user: userId, status: PARTICIPATION_STATUS.JOINED },
-    ];
-  }
-  if (event === EVENT_JOIN_CAMPAIGN.ACCEPT_INVITE) {
-    const index = campaign.participants.findIndex(
-      (item) => item.user === userId,
-    );
-    campaign.participants[index] = {
-      user: userId,
-      status: PARTICIPATION_STATUS.JOINED,
-    };
-  }
-  const joinResult = await campaignDao.updateCampaign(campaignId, {
+  const hasJoined = participants.some(
+    (item) => String(item.user) === String(user._id),
+  );
+  if (hasJoined) throw new CustomError(code.BAD_REQUEST, 'User joined');
+  participants = [...participants, { user: user._id, role: role._id }];
+
+  const joinResult = await campaignDao.updateCampaign(campaign._id, {
     participants,
   });
 
   return joinResult;
+};
+
+const leaveCampaign = async (user, campaign) => {
+  let { participants } = campaign;
+  const hasJoined = participants.some(
+    (item) => String(item.user) === String(user._id),
+  );
+  if (!hasJoined)
+    throw new CustomError(code.BAD_REQUEST, 'User has not joined');
+  participants = participants.filter(
+    (item) => String(item.user) !== String(user._id),
+  );
+
+  const result = await campaignDao.updateCampaign(campaign._id, {
+    participants,
+  });
+  return result;
 };
 
 module.exports = {
@@ -199,5 +178,6 @@ module.exports = {
   updateCampaign,
   updateServiceCampaign,
   deleteCampaign,
-  addUser,
+  joinCampaign,
+  leaveCampaign,
 };

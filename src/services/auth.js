@@ -30,12 +30,8 @@ const logout = async (data) => {
 };
 
 const verifyAccessToken = async (accessToken) => {
-  const activeToken = await redisClient.getAsync(`TOKEN_${accessToken}`);
-  if (!activeToken) throw new CustomError(errorCodes.UNAUTHORIZED);
-
   const data = await jwt.verify(accessToken, JWT_SECRET_KEY);
   const { ssoUserId } = data;
-
   const user = await userDao.findUser({ ssoUserId });
   if (!user) throw new CustomError(errorCodes.UNAUTHORIZED);
   return user;

@@ -1,22 +1,25 @@
 const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
 const campaignController = require('../controllers/campaign');
+const getCampaign = require('../middlewares/getCampaign');
+const { auth } = require('../middlewares/auth');
+
 const {
   createCampaignValidate,
-  userJoinValidate,
   updateCampaignValidate,
   updateServiceValidate,
 } = require('../validations/campaign');
 
 /* eslint-disable prettier/prettier */
 router.get('/campaigns', asyncMiddleware(campaignController.getCampaigns));
-router.get('/campaigns/:campaignId', asyncMiddleware(campaignController.getCampaign));
+router.get('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.getCampaign));
 router.post('/campaigns', createCampaignValidate, asyncMiddleware(campaignController.createCampaign));
-router.delete('/campaigns/:campaignId', asyncMiddleware(campaignController.deleteCampaign));
-router.put('/campaigns/:campaignId/add-user', userJoinValidate, asyncMiddleware(campaignController.addUser));
+router.delete('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.deleteCampaign));
 
-router.put('/campaigns/:campaignId', updateCampaignValidate, asyncMiddleware(campaignController.updateCampaign));
-router.put('/campaigns/:campaignId/service', updateServiceValidate, asyncMiddleware(campaignController.updateServiceCampaign));
+router.post('/campaigns/join', auth, getCampaign, asyncMiddleware(campaignController.joinCampaign));
+router.post('/campaigns/leave', auth, getCampaign, asyncMiddleware(campaignController.leaveCampaign));
+router.put('/campaigns/service', getCampaign, updateServiceValidate, asyncMiddleware(campaignController.updateServiceCampaign));
+router.put('/campaigns/:campaignId', getCampaign, updateCampaignValidate, asyncMiddleware(campaignController.updateCampaign));
 /* eslint-enable prettier/prettier */
 
 module.exports = router;
