@@ -45,9 +45,9 @@ const getCampaigns = async (req, res) => {
 };
 
 const getCampaign = async (req, res) => {
-  const { campaignId } = req.params;
-  const campaign = await campaignService.getCampaign(campaignId);
-  return res.send({ status: 1, result: campaign });
+  const { campaign } = req;
+  const campaignInfo = await campaignService.getCampaign(campaign);
+  return res.send({ status: 1, result: campaignInfo });
 };
 
 const createCampaign = async (req, res) => {
@@ -56,32 +56,37 @@ const createCampaign = async (req, res) => {
 };
 
 const updateCampaign = async (req, res) => {
-  const { campaignId } = req.params;
-  const campaign = await campaignService.updateCampaign(campaignId, req.body);
+  const { campaign } = req;
+  const newCampaign = await campaignService.updateCampaign(campaign, req.body);
 
-  return res.send({ status: 1, result: campaign });
+  return res.send({ status: 1, result: newCampaign });
 };
 
 const updateServiceCampaign = async (req, res) => {
-  const { campaignId } = req.params;
-  const campaign = await campaignService.updateServiceCampaign(
-    campaignId,
+  const { campaign } = req;
+  const newCampaign = await campaignService.updateServiceCampaign(
+    campaign,
     req.body,
   );
-  return res.send({ status: 1, result: campaign });
+  return res.send({ status: 1, result: newCampaign });
 };
 
 const deleteCampaign = async (req, res) => {
-  const { campaignId } = req.params;
-  await campaignService.deleteCampaign(campaignId);
+  const { campaign } = req;
+  await campaignService.deleteCampaign(campaign._id);
   return res.send({ status: 1 });
 };
 
-const addUser = async (req, res) => {
-  const { campaignId } = req.params;
-  const { userId, event } = req.body;
-  const joinResult = await campaignService.addUser(userId, campaignId, event);
+const joinCampaign = async (req, res) => {
+  const { campaign, user } = req;
+  const joinResult = await campaignService.joinCampaign(user, campaign);
   return res.send({ status: 1, result: joinResult });
+};
+
+const leaveCampaign = async (req, res) => {
+  const { campaign, user } = req;
+  const leaveResult = await campaignService.leaveCampaign(user, campaign);
+  return res.send({ status: 1, result: leaveResult });
 };
 
 module.exports = {
@@ -91,5 +96,6 @@ module.exports = {
   updateCampaign,
   updateServiceCampaign,
   deleteCampaign,
-  addUser,
+  joinCampaign,
+  leaveCampaign,
 };

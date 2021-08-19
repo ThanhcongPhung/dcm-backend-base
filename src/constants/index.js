@@ -6,27 +6,9 @@ const CAMPAIGN_STATUS = {
   END: 'END',
 };
 
-const PARTICIPATION_STATUS = {
-  INVITED: 'INVITED',
-  JOINED: 'JOINED',
-};
-
 const CAMPAIGN_VISIBILITY = {
   PUBLIC: 'PUBLIC',
   PRIVATE: 'PRIVATE',
-};
-
-const COLLECT_DATA_SYSTEM = {
-  FAQ: 'FAQ',
-  SLU: 'SLU',
-  ASR: 'ASR',
-  CHB: 'CHB',
-  CHH: 'CHH',
-};
-
-const EVENT_JOIN_CAMPAIGN = {
-  JOIN: 'JOIN',
-  ACCEPT_INVITE: 'ACCEPT_INVITE',
 };
 
 const SSO_EVENT = {
@@ -35,12 +17,15 @@ const SSO_EVENT = {
   LOGOUT: 'LOGOUT',
 };
 
+const CAMPAIGN_USER_ROLE = {
+  USER: 'user',
+  ADMIN: 'admin',
+};
+
 module.exports = {
   A_WEEK: 7 * 86400 * 1000,
   CAMPAIGN_STATUS,
-  PARTICIPATION_STATUS,
   CAMPAIGN_VISIBILITY,
-  COLLECT_DATA_SYSTEM,
-  EVENT_JOIN_CAMPAIGN,
   SSO_EVENT,
+  CAMPAIGN_USER_ROLE,
 };
