@@ -7,7 +7,10 @@ const createUser = async (newUser) => {
 };
 
 const findUser = async (condition) => {
-  const user = await daoUtils.findOne(User, condition);
+  const user = await User.findOne(condition)
+    .lean()
+    .populate({ path: 'role', select: 'name' })
+    .exec();
   return user;
 };
 

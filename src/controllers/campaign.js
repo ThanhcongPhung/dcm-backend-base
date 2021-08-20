@@ -1,29 +1,26 @@
 const campaignService = require('../services/campaign');
 
 const getCampaigns = async (req, res) => {
+  const { user } = req;
   const {
     search,
     fields,
     offset,
     limit,
     sort,
+    participantStatus,
     campaignVisibility,
     status,
-    serviceId: service,
+    serviceId,
   } = req.query;
 
   const query = {};
-
-  const statusFilter = status ? { status } : {};
-  const campaignVisibilityFilter = campaignVisibility
-    ? { campaignVisibility }
-    : {};
-  const serviceFilter = service ? { service } : {};
-
   query.query = {
-    ...statusFilter,
-    ...campaignVisibilityFilter,
-    ...serviceFilter,
+    participantStatus,
+    campaignVisibility,
+    status,
+    service: serviceId,
+    user,
   };
   if (search) query.search = search;
   if (fields) query.fields = fields.split(',');
