@@ -27,8 +27,6 @@ const getCampaigns = async (req, res) => {
   if (offset) query.offset = parseInt(offset, 10);
   if (limit) query.limit = parseInt(limit, 10);
   if (sort) query.sort = sort.split(',');
-  if (userId) query.userId = userId;
-  if (pageTypeByRole) query.pageTypeByRole = pageTypeByRole;
 
   const { campaigns, count } = await campaignService.getCampaigns(query);
 
@@ -98,6 +96,22 @@ const updateStatusCampaign = async (req, res) => {
   return res.send({ status: 1, result: changeResult });
 };
 
+const getIntents = async (req, res) => {
+  const {
+    campaign: { _id: campaignId },
+  } = req;
+  const intents = await campaignService.getIntents(campaignId);
+  return res.send({ status: 1, result: intents });
+};
+
+const syncIntents = async (req, res) => {
+  const {
+    campaign: { _id: campaignId, botId },
+  } = req;
+  await campaignService.syncIntents(campaignId, botId);
+  return res.send({ status: 1 });
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -108,4 +122,6 @@ module.exports = {
   joinCampaign,
   leaveCampaign,
   updateStatusCampaign,
+  getIntents,
+  syncIntents,
 };

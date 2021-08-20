@@ -6,7 +6,11 @@ const campaignDao = require('../daos/campaign');
 const botService = require('./bot');
 const roleDao = require('../daos/role');
 const serviceCampaign = require('./serviceCampaign');
-const { CAMPAIGN_STATUS, CAMPAIGN_USER_ROLE } = require('../constants');
+const {
+  CAMPAIGN_STATUS,
+  CAMPAIGN_USER_ROLE,
+  INTENT_STATUS,
+} = require('../constants');
 
 const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
   const { campaigns, count } = await campaignDao.findCampaigns({
@@ -70,7 +74,12 @@ const createCampaign = async ({
     const response = await botService.getIntents(botId);
     if (response.status && response.result.intents.length) {
       const intents = response.result.intents.map((item) => {
-        return { ...item, campaignId: campaign.id };
+        return {
+          ...item,
+          campaignId: campaign.id,
+          intentId: item.id,
+          status: INTENT_STATUS.ACTIVE,
+        };
       });
       await intentDao.createIntents(intents);
     }
@@ -94,7 +103,12 @@ const updateCampaign = async (campaign, updateFields) => {
     await intentDao.deleteIntents({ campaignId: campaign._id });
     const { result } = await botService.getIntents(botId);
     const intents = result.intents.map((item) => {
-      return { ...item, campaignId: campaign._id };
+      return {
+        ...item,
+        campaignId: campaign._id,
+        intentId: item.id,
+        status: INTENT_STATUS.ACTIVE,
+      };
     });
     await intentDao.createIntents(intents);
   }
@@ -200,6 +214,42 @@ const updateStatusCampaign = async (campaign, incomingStatus) => {
   // TODO: send email
 };
 
+const getIntents = async (campaignId) => {
+  const intents = await intentDao.findIntents({ campaignId });
+  return intents;
+};
+
+const syncIntents = async (campaignId, botId) => {
+  if (!botId) return;
+  const currentIntents = await intentDao.findIntents({ campaignId });
+  const SMDIntents = await botService.getIntents(botId);
+
+  const removingIntentIds = currentIntents
+    .filter(
+      (intent) =>
+        !SMDIntents.find((smdIntent) => smdIntent.id === intent.intentId),
+    )
+    .map((intent) => intent._id);
+  await intentDao.removeIntents(removingIntentIds);
+
+  const newIntents = SMDIntents.reduce((accIntent, curIntent) => {
+    const intentExist = currentIntents.find(
+      (item) => item.intentId === curIntent.id,
+    );
+    if (intentExist) return accIntent;
+    return [
+      ...accIntent,
+      {
+        ...curIntent,
+        status: INTENT_STATUS.ACTIVE,
+        intentId: curIntent.id,
+        campaignId,
+      },
+    ];
+  }, []);
+  await intentDao.createIntents(newIntents);
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -210,4 +260,6 @@ module.exports = {
   joinCampaign,
   leaveCampaign,
   updateStatusCampaign,
+  getIntents,
+  syncIntents,
 };

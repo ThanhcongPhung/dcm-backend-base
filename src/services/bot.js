@@ -20,20 +20,24 @@ const getApp = async (appId) => {
 };
 
 const getIntents = async (botId) => {
-  const options = {
-    method: 'GET',
-    url: `${BOT_API_URL}/intents`,
-    headers: {
-      'bot-id': botId,
-      Authorization: `Bearer ${BOT_SECRET_KEY}`,
-      env: 'live',
-    },
-    params: {
-      fields: 'displayName,name',
-    },
-  };
-  const response = await callApi(options);
-  return response;
+  try {
+    const options = {
+      method: 'GET',
+      url: `${BOT_API_URL}/intents`,
+      headers: {
+        'bot-id': botId,
+        Authorization: `Bearer ${BOT_SECRET_KEY}`,
+        env: 'live',
+      },
+      params: {
+        fields: 'displayName,name',
+      },
+    };
+    const response = await callApi(options);
+    return response.result.intents;
+  } catch (error) {
+    return error.response;
+  }
 };
 
 module.exports = {

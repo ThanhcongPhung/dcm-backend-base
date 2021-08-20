@@ -13,6 +13,7 @@ const {
 
 /* eslint-disable prettier/prettier */
 router.get('/campaigns', auth, asyncMiddleware(campaignController.getCampaigns));
+router.get('/campaigns/intents', getCampaign, asyncMiddleware(campaignController.getIntents));
 router.get('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.getCampaign));
 router.post('/campaigns', createCampaignValidate, asyncMiddleware(campaignController.createCampaign));
 router.delete('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.deleteCampaign));
@@ -21,6 +22,7 @@ router.post('/campaigns/join', auth, getCampaign, asyncMiddleware(campaignContro
 router.post('/campaigns/leave', auth, getCampaign, asyncMiddleware(campaignController.leaveCampaign));
 router.put('/campaigns/service', getCampaign, updateServiceValidate, asyncMiddleware(campaignController.updateServiceCampaign));
 router.put('/campaigns/status', getCampaign, updateStatusValidate, asyncMiddleware(campaignController.updateStatusCampaign));
+router.put('/campaigns/intents', getCampaign, asyncMiddleware(campaignController.syncIntents));
 router.put('/campaigns/:campaignId', getCampaign, updateCampaignValidate, asyncMiddleware(campaignController.updateCampaign));
 /* eslint-enable prettier/prettier */
 
