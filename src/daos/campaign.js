@@ -1,5 +1,11 @@
 const Campaign = require('../models/campaign');
 const daoUtils = require('./utils');
+const {
+  PARTICIPANT_STATUS,
+  CAMPAIGN_VISIBILITY,
+  CAMPAIGN_USER_ROLE,
+  CAMPAIGN_STATUS,
+} = require('../constants');
 
 const findCampaigns = async ({
   search,
@@ -9,12 +15,36 @@ const findCampaigns = async ({
   fields,
   sort,
 }) => {
+  const { status, campaignVisibility, service, participantStatus, user } =
+    query;
+  let advanceSearch = {};
+  if (service) advanceSearch.service = service;
+  if (campaignVisibility) advanceSearch.campaignVisibility = campaignVisibility;
+
+  if (user.role.name === CAMPAIGN_USER_ROLE.USER) {
+    if (participantStatus === PARTICIPANT_STATUS.MY_CAMPAIGN) {
+      advanceSearch.participants = { $elemMatch: { user: user._id } };
+    } else if (participantStatus === PARTICIPANT_STATUS.OTHER_CAMPAIGN) {
+      advanceSearch.participants = {
+        $not: { $elemMatch: { user: user._id } },
+      };
+    }
+    advanceSearch = {
+      ...advanceSearch,
+      status: status || { $ne: CAMPAIGN_STATUS.DRAFT },
+      campaignVisibility: CAMPAIGN_VISIBILITY.PUBLIC,
+    };
+  } else if (user.role.name === CAMPAIGN_USER_ROLE.ADMIN) {
+    const statusField = status ? { status } : {};
+    advanceSearch = { ...advanceSearch, ...statusField };
+  }
+
   const { documents: campaigns, count } = await daoUtils.findAll(
     Campaign,
     ['name'],
     {
       search,
-      query,
+      query: advanceSearch,
       offset,
       limit,
       fields,
@@ -25,7 +55,10 @@ const findCampaigns = async ({
 };
 
 const findCampaign = async (condition) => {
-  const campaign = await daoUtils.findOne(Campaign, condition);
+  const campaign = await Campaign.findOne(condition)
+    .lean()
+    .populate('service')
+    .exec();
   return campaign;
 };
 

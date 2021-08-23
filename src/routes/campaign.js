@@ -11,7 +11,7 @@ const {
 } = require('../validations/campaign');
 
 /* eslint-disable prettier/prettier */
-router.get('/campaigns', asyncMiddleware(campaignController.getCampaigns));
+router.get('/campaigns', auth, asyncMiddleware(campaignController.getCampaigns));
 router.get('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.getCampaign));
 router.post('/campaigns', createCampaignValidate, asyncMiddleware(campaignController.createCampaign));
 router.delete('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.deleteCampaign));

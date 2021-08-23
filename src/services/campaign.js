@@ -6,7 +6,7 @@ const campaignDao = require('../daos/campaign');
 const botService = require('./bot');
 const roleDao = require('../daos/role');
 const serviceCampaign = require('./serviceCampaign');
-const { CAMPAIGN_STATUS, CAMPAIGN_USER_ROLE } = require('../constants/index');
+const { CAMPAIGN_STATUS, CAMPAIGN_USER_ROLE } = require('../constants');
 
 const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
   const { campaigns, count } = await campaignDao.findCampaigns({
