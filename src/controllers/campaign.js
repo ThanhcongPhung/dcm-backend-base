@@ -86,6 +86,16 @@ const leaveCampaign = async (req, res) => {
   return res.send({ status: 1, result: leaveResult });
 };
 
+const updateStatusCampaign = async (req, res) => {
+  const { campaign } = req;
+  const { status } = req.body;
+  const changeResult = await campaignService.updateStatusCampaign(
+    campaign,
+    status,
+  );
+  return res.send({ status: 1, result: changeResult });
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -95,4 +105,5 @@ module.exports = {
   deleteCampaign,
   joinCampaign,
   leaveCampaign,
+  updateStatusCampaign,
 };

@@ -8,6 +8,7 @@ const {
   createCampaignValidate,
   updateCampaignValidate,
   updateServiceValidate,
+  updateStatusValidate,
 } = require('../validations/campaign');
 
 /* eslint-disable prettier/prettier */
@@ -19,6 +20,7 @@ router.delete('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignCon
 router.post('/campaigns/join', auth, getCampaign, asyncMiddleware(campaignController.joinCampaign));
 router.post('/campaigns/leave', auth, getCampaign, asyncMiddleware(campaignController.leaveCampaign));
 router.put('/campaigns/service', getCampaign, updateServiceValidate, asyncMiddleware(campaignController.updateServiceCampaign));
+router.put('/campaigns/status', getCampaign, updateStatusValidate, asyncMiddleware(campaignController.updateStatusCampaign));
 router.put('/campaigns/:campaignId', getCampaign, updateCampaignValidate, asyncMiddleware(campaignController.updateCampaign));
 /* eslint-enable prettier/prettier */
 

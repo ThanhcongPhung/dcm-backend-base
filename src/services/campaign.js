@@ -171,6 +171,35 @@ const leaveCampaign = async (user, campaign) => {
   return result;
 };
 
+const updateStatusCampaign = async (campaign, incomingStatus) => {
+  const currentStatus = campaign.status;
+
+  const isInvalidRunning =
+    incomingStatus === CAMPAIGN_STATUS.RUNNING &&
+    ![CAMPAIGN_STATUS.WAITING, CAMPAIGN_STATUS.PAUSE].includes(currentStatus);
+  const isInvalidPause =
+    incomingStatus === CAMPAIGN_STATUS.PAUSE &&
+    currentStatus !== CAMPAIGN_STATUS.RUNNING;
+  const isInvalidEnd =
+    incomingStatus === CAMPAIGN_STATUS.END &&
+    ![CAMPAIGN_STATUS.RUNNING, CAMPAIGN_STATUS.PAUSE].includes(currentStatus);
+  if (isInvalidRunning || isInvalidPause || isInvalidEnd)
+    throw new CustomError(code.BAD_REQUEST, 'Can not update status');
+
+  let updateFields = { status: incomingStatus };
+  if (
+    incomingStatus === CAMPAIGN_STATUS.RUNNING &&
+    currentStatus === CAMPAIGN_STATUS.WAITING
+  ) {
+    updateFields = { ...updateFields, startTime: new Date() };
+  }
+  if (incomingStatus === CAMPAIGN_STATUS.END) {
+    updateFields = { ...updateFields, endTime: new Date() };
+  }
+  await campaignDao.updateCampaign(campaign._id, updateFields);
+  // TODO: send email
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -180,4 +209,5 @@ module.exports = {
   deleteCampaign,
   joinCampaign,
   leaveCampaign,
+  updateStatusCampaign,
 };
