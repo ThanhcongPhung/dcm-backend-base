@@ -6,6 +6,7 @@ const intentSchema = new mongoose.Schema(
     displayName: String,
     intentId: String,
     campaignId: String,
+    status: String,
   },
   {
     timestamps: true,

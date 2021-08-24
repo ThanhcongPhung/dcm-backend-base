@@ -96,6 +96,22 @@ const updateStatusCampaign = async (req, res) => {
   return res.send({ status: 1, result: changeResult });
 };
 
+const getIntents = async (req, res) => {
+  const {
+    campaign: { _id: campaignId },
+  } = req;
+  const intents = await campaignService.getIntents(campaignId);
+  return res.send({ status: 1, result: intents });
+};
+
+const syncIntents = async (req, res) => {
+  const {
+    campaign: { _id: campaignId, botId },
+  } = req;
+  await campaignService.syncIntents(campaignId, botId);
+  return res.send({ status: 1 });
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -106,4 +122,6 @@ module.exports = {
   joinCampaign,
   leaveCampaign,
   updateStatusCampaign,
+  getIntents,
+  syncIntents,
 };

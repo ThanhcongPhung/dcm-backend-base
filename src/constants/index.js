@@ -27,6 +27,11 @@ const PARTICIPANT_STATUS = {
   OTHER_CAMPAIGN: 'OTHER_CAMPAIGN',
 };
 
+const INTENT_STATUS = {
+  ACTIVE: 'ACTIVE',
+  DELETE: 'DELETE',
+};
+
 module.exports = {
   A_WEEK: 7 * 86400 * 1000,
   CAMPAIGN_STATUS,
@@ -34,4 +39,5 @@ module.exports = {
   SSO_EVENT,
   CAMPAIGN_USER_ROLE,
   PARTICIPANT_STATUS,
+  INTENT_STATUS,
 };
