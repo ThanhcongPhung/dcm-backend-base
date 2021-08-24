@@ -58,6 +58,7 @@ const findCampaign = async (condition) => {
   const campaign = await Campaign.findOne(condition)
     .lean()
     .populate('service')
+    .populate('participants.user')
     .exec();
   return campaign;
 };
