@@ -15,13 +15,6 @@ const deleteIntents = async (conditions) => {
   await Intent.deleteMany(conditions);
 };
 
-const updateIntent = async (id, updateFields) => {
-  const intent = await Intent.findByIdAndUpdate(id, updateFields, {
-    new: true,
-  });
-  return intent;
-};
-
 const removeIntents = async (removingIntentIds) => {
   const intents = await Intent.updateMany(
     { _id: { $in: removingIntentIds } },
@@ -36,6 +29,5 @@ module.exports = {
   createIntents,
   deleteIntents,
   findIntents,
-  updateIntent,
   removeIntents,
 };

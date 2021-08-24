@@ -71,18 +71,16 @@ const createCampaign = async ({
     status: CAMPAIGN_STATUS.DRAFT,
   });
   if (botId) {
-    const response = await botService.getIntents(botId);
-    if (response.status && response.result.intents.length) {
-      const intents = response.result.intents.map((item) => {
-        return {
-          ...item,
-          campaignId: campaign.id,
-          intentId: item.id,
-          status: INTENT_STATUS.ACTIVE,
-        };
-      });
-      await intentDao.createIntents(intents);
-    }
+    const SMDIntents = await botService.getIntents(botId);
+    const intents = SMDIntents.map((item) => {
+      return {
+        ...item,
+        campaignId: campaign.id,
+        intentId: item.id,
+        status: INTENT_STATUS.ACTIVE,
+      };
+    });
+    await intentDao.createIntents(intents);
   }
   return campaign;
 };
@@ -101,8 +99,8 @@ const updateCampaign = async (campaign, updateFields) => {
 
   if (botId && botId !== campaign.botId) {
     await intentDao.deleteIntents({ campaignId: campaign._id });
-    const { result } = await botService.getIntents(botId);
-    const intents = result.intents.map((item) => {
+    const SMDIntents = await botService.getIntents(botId);
+    const intents = SMDIntents.map((item) => {
       return {
         ...item,
         campaignId: campaign._id,
@@ -234,7 +232,7 @@ const syncIntents = async (campaignId, botId) => {
 
   const newIntents = SMDIntents.reduce((accIntent, curIntent) => {
     const intentExist = currentIntents.find(
-      (item) => item.intentId === curIntent.id,
+      (intent) => intent.intentId === curIntent.id,
     );
     if (intentExist) return accIntent;
     return [
