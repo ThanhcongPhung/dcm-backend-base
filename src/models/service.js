@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Types;
 const serviceSchema = new mongoose.Schema(
   {
     name: String,
-    description: String,
+    campaignTypes: [String],
     url: String,
     inputs: [String],
     actions: [String],
