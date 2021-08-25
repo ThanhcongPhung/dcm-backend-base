@@ -32,6 +32,14 @@ const INTENT_STATUS = {
   DELETE: 'DELETE',
 };
 
+const CAMPAIGN_TYPE = {
+  CHATBOT_INTENT: 'CHATBOT_INTENT',
+  CHATBOT_USECASE: 'CHATBOT_USECASE',
+  FAQ: 'FAQ',
+  SLU: 'SLU',
+  ASR: 'ASR',
+};
+
 module.exports = {
   A_WEEK: 7 * 86400 * 1000,
   CAMPAIGN_STATUS,
@@ -40,4 +48,5 @@ module.exports = {
   CAMPAIGN_USER_ROLE,
   PARTICIPANT_STATUS,
   INTENT_STATUS,
+  CAMPAIGN_TYPE,
 };
