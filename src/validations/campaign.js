@@ -1,15 +1,22 @@
 const { Joi, validate } = require('express-validation');
-const { CAMPAIGN_VISIBILITY, CAMPAIGN_STATUS } = require('../constants');
+const {
+  CAMPAIGN_VISIBILITY,
+  CAMPAIGN_STATUS,
+  CAMPAIGN_TYPE,
+} = require('../constants');
 
 const createCampaign = {
   body: Joi.object({
     name: Joi.string().trim().required(),
     description: Joi.string().trim().required(),
-    image: Joi.string().required(),
+    image: Joi.string().allow(''),
     startTime: Joi.date().required(),
     endTime: Joi.date().required(),
     campaignVisibility: Joi.string()
       .valid(...Object.values(CAMPAIGN_VISIBILITY))
+      .required(),
+    campaignType: Joi.string()
+      .valid(...Object.values(CAMPAIGN_TYPE))
       .required(),
     action: Joi.string().required(),
     serviceId: Joi.string().required(),
@@ -22,7 +29,7 @@ const updateCampaign = {
   body: Joi.object({
     name: Joi.string().trim().required(),
     description: Joi.string().trim().required(),
-    image: Joi.string().required(),
+    image: Joi.string().allow(''),
     startTime: Joi.date().required(),
     endTime: Joi.date().required(),
     campaignVisibility: Joi.string()

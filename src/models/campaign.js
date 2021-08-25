@@ -16,6 +16,7 @@ const campaignSchema = new mongoose.Schema(
         status: String,
       },
     ],
+    campaignType: String,
     status: String,
     campaignVisibility: String,
     service: { type: ObjectId, ref: 'Service' },

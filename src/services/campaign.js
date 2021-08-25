@@ -44,6 +44,7 @@ const createCampaign = async ({
   endTime,
   serviceId,
   action,
+  campaignType,
   appId,
   botId,
 }) => {
@@ -52,10 +53,11 @@ const createCampaign = async ({
     throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
   const actionExist = service.actions.find((item) => item === action);
   if (!actionExist)
-    throw new CustomError(
-      code.BAD_REQUEST,
-      'Service does not have this action',
-    );
+    throw new CustomError(code.BAD_REQUEST, 'action is invalid');
+  const typeExist = service.campaignTypes.find((item) => item === campaignType);
+  if (!typeExist)
+    throw new CustomError(code.BAD_REQUEST, 'campaign type is invalid');
+
   const campaign = await campaignDao.createCampaign({
     name,
     description,
@@ -67,6 +69,7 @@ const createCampaign = async ({
     action,
     appId,
     botId,
+    campaignType,
     participants: [],
     status: CAMPAIGN_STATUS.DRAFT,
   });
@@ -212,9 +215,16 @@ const updateStatusCampaign = async (campaign, incomingStatus) => {
   // TODO: send email
 };
 
-const getIntents = async (campaignId) => {
-  const intents = await intentDao.findIntents({ campaignId });
-  return intents;
+const getIntents = async ({ search, fields, offset, limit, sort, query }) => {
+  const { intents, count } = await intentDao.findIntents({
+    search,
+    fields,
+    offset,
+    limit,
+    sort,
+    query,
+  });
+  return { intents, count };
 };
 
 const syncIntents = async (campaignId, botId) => {
