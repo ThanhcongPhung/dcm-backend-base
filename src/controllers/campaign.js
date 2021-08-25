@@ -1,4 +1,5 @@
 const campaignService = require('../services/campaign');
+const { INTENT_STATUS } = require('../constants');
 
 const getCampaigns = async (req, res) => {
   const { user } = req;
@@ -100,8 +101,26 @@ const getIntents = async (req, res) => {
   const {
     campaign: { _id: campaignId },
   } = req;
-  const intents = await campaignService.getIntents(campaignId);
-  return res.send({ status: 1, result: intents });
+  const { search, fields, offset, limit, sort } = req.params;
+  const query = {};
+  query.query = { campaignId, status: INTENT_STATUS.ACTIVE };
+  if (search) query.search = search;
+  if (search) query.search = search;
+  if (fields) query.fields = fields.split(',');
+  if (offset) query.offset = parseInt(offset, 10);
+  if (limit) query.limit = parseInt(limit, 10);
+  if (sort) query.sort = sort.split(',');
+
+  const { intents, count } = await campaignService.getIntents(query);
+  return res.send({
+    status: 1,
+    result: {
+      intents,
+      metadata: {
+        total: count,
+      },
+    },
+  });
 };
 
 const syncIntents = async (req, res) => {
