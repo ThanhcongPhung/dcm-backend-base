@@ -62,11 +62,8 @@ const updateCampaign = async (req, res) => {
 
 const updateServiceCampaign = async (req, res) => {
   const { campaign } = req;
-  const newCampaign = await campaignService.updateServiceCampaign(
-    campaign,
-    req.body,
-  );
-  return res.send({ status: 1, result: newCampaign });
+  await campaignService.updateServiceCampaign(campaign, req.body);
+  return res.send({ status: 1 });
 };
 
 const deleteCampaign = async (req, res) => {
@@ -142,22 +139,16 @@ const syncIntents = async (req, res) => {
 };
 
 const getParticipants = async (req, res) => {
-  const {
-    campaign: { participants },
-  } = req;
-  const result = await campaignService.getParticipants(participants);
-  return res.send({ status: 1, result });
+  const { _id: campaignId, participants } = req.campaign;
+  if (!participants.length) return res.send({ status: 1, result: [] });
+  const detailParticipants = await campaignService.getParticipants(campaignId);
+  return res.send({ status: 1, result: detailParticipants });
 };
 
 const addParticipant = async (req, res) => {
   const { _id: campaignId, participants } = req.campaign;
-  const { userId, roleId } = req.body;
-  await campaignService.addParticipant(
-    campaignId,
-    participants,
-    userId,
-    roleId,
-  );
+  const { userId, role } = req.body;
+  await campaignService.addParticipant(campaignId, participants, userId, role);
   return res.send({ status: 1 });
 };
 

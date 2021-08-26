@@ -3,7 +3,7 @@ const daoUtils = require('./utils');
 const {
   PARTICIPANT_STATUS,
   CAMPAIGN_VISIBILITY,
-  CAMPAIGN_USER_ROLE,
+  SYSTEM_ROLE,
   CAMPAIGN_STATUS,
 } = require('../constants');
 
@@ -20,12 +20,9 @@ const findCampaigns = async ({
   let advanceSearch = {};
   if (serviceId) advanceSearch.serviceId = serviceId;
   if (campaignVisibility) advanceSearch.campaignVisibility = campaignVisibility;
+
   const userId = user._id;
-  if (
-    user.role &&
-    user.role.name &&
-    user.role.name === CAMPAIGN_USER_ROLE.USER
-  ) {
+  if (user.role && user.role.name && user.role.name === SYSTEM_ROLE.USER) {
     if (participantStatus === PARTICIPANT_STATUS.MY_CAMPAIGN) {
       advanceSearch.participants = { $elemMatch: { userId } };
     } else if (participantStatus === PARTICIPANT_STATUS.OTHER_CAMPAIGN) {
@@ -41,7 +38,7 @@ const findCampaigns = async ({
   } else if (
     user.role &&
     user.role.name &&
-    user.role.name === CAMPAIGN_USER_ROLE.ADMIN
+    user.role.name === SYSTEM_ROLE.ADMIN
   ) {
     const statusField = status ? { status } : {};
     advanceSearch = { ...advanceSearch, ...statusField };
@@ -63,7 +60,7 @@ const findCampaigns = async ({
 };
 
 const findCampaign = async (condition) => {
-  const [campaign] = await Campaign.aggregate(
+  const [campaign] = await Campaign.aggregate([
     { $match: condition },
     {
       $lookup: {
@@ -74,6 +71,13 @@ const findCampaign = async (condition) => {
       },
     },
     { $unwind: '$service' },
+  ]);
+  return campaign;
+};
+
+const findParticipants = async (condition) => {
+  const [campaign] = await Campaign.aggregate([
+    { $match: condition },
     { $unwind: '$participants' },
     {
       $lookup: {
@@ -87,14 +91,11 @@ const findCampaign = async (condition) => {
     {
       $group: {
         _id: '$_id',
-        root: { $mergeObjects: '$$ROOT' },
         participants: { $push: '$participants' },
       },
     },
-    { $replaceRoot: { newRoot: { $mergeObjects: ['$root', '$$ROOT'] } } },
-    { $project: { root: 0 } },
-  );
-  return campaign;
+  ]);
+  return campaign.participants;
 };
 
 const createCampaign = async (createFields) => {
@@ -119,4 +120,5 @@ module.exports = {
   createCampaign,
   updateCampaign,
   deleteCampaign,
+  findParticipants,
 };

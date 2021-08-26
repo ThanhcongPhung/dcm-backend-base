@@ -17,9 +17,9 @@ const SSO_EVENT = {
   LOGOUT: 'LOGOUT',
 };
 
-const CAMPAIGN_USER_ROLE = {
-  USER: 'user',
-  ADMIN: 'admin',
+const SYSTEM_ROLE = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
 };
 
 const PARTICIPANT_STATUS = {
@@ -45,8 +45,8 @@ module.exports = {
   CAMPAIGN_STATUS,
   CAMPAIGN_VISIBILITY,
   SSO_EVENT,
-  CAMPAIGN_USER_ROLE,
   PARTICIPANT_STATUS,
   INTENT_STATUS,
   CAMPAIGN_TYPE,
+  SYSTEM_ROLE,
 };
