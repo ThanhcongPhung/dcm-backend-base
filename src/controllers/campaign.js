@@ -131,6 +131,33 @@ const syncIntents = async (req, res) => {
   return res.send({ status: 1 });
 };
 
+const getParticipants = async (req, res) => {
+  const {
+    campaign: { participants },
+  } = req;
+  const result = await campaignService.getParticipants(participants);
+  return res.send({ status: 1, result });
+};
+
+const addParticipant = async (req, res) => {
+  const { _id: campaignId, participants } = req.campaign;
+  const { userId, roleId } = req.body;
+  await campaignService.addParticipant(
+    campaignId,
+    participants,
+    userId,
+    roleId,
+  );
+  return res.send({ status: 1 });
+};
+
+const deleteParticipant = async (req, res) => {
+  const { _id: campaignId, participants } = req.campaign;
+  const { userId } = req.body;
+  await campaignService.deleteParticipant(campaignId, participants, userId);
+  return res.send({ status: 1 });
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -143,4 +170,7 @@ module.exports = {
   updateStatusCampaign,
   getIntents,
   syncIntents,
+  getParticipants,
+  addParticipant,
+  deleteParticipant,
 };

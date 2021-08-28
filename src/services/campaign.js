@@ -5,6 +5,7 @@ const serviceDao = require('../daos/service');
 const campaignDao = require('../daos/campaign');
 const botService = require('./bot');
 const roleDao = require('../daos/role');
+const userDao = require('../daos/user');
 const serviceCampaign = require('./serviceCampaign');
 const {
   CAMPAIGN_STATUS,
@@ -265,6 +266,31 @@ const getParticipants = (participants) =>
     roleId: participant.role,
   }));
 
+const addParticipant = async (campaignId, participants, userId, roleId) => {
+  const userExist = await userDao.findUser({ _id: userId });
+  if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
+  const role = await roleDao.findRole({ _id: roleId });
+  if (!role) throw new CustomError(code.BAD_REQUEST, 'Role is not exists');
+  const isAdded = participants.some((item) => String(item.user._id) === userId);
+  if (isAdded) throw new CustomError(code.BAD_REQUEST, 'User added');
+
+  await campaignDao.updateCampaign(campaignId, {
+    participants: [...participants, { user: userId, role: roleId }],
+  });
+};
+
+const deleteParticipant = async (campaignId, participants, userId) => {
+  const userExist = await userDao.findUser({ _id: userId });
+  if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
+
+  const remainingParticipants = participants.filter(
+    (item) => String(item.user._id) !== userId,
+  );
+  await campaignDao.updateCampaign(campaignId, {
+    participants: remainingParticipants,
+  });
+};
+
 module.exports = {
   getCampaigns,
   getCampaign,
@@ -278,4 +304,6 @@ module.exports = {
   getIntents,
   syncIntents,
   getParticipants,
+  addParticipant,
+  deleteParticipant,
 };
