@@ -1,17 +1,23 @@
 const CustomError = require('../errors/CustomError');
 const code = require('../errors/code');
 const userDao = require('../daos/user');
+const roleDao = require('../daos/role');
 
-const getUsers = async ({ search, fields, offset, limit, sort }) => {
-  const query = {};
-
-  if (search) query.search = search;
-  if (fields) query.fields = fields.split(',');
-  if (offset) query.offset = parseInt(offset, 10);
-  if (limit) query.limit = parseInt(limit, 10);
-  if (sort) query.sort = sort.split(',');
-
-  const { users, count } = await userDao.findUsers(query);
+const getUsers = async ({ search, fields, offset, limit, sort, query }) => {
+  let searchAdvance = {};
+  if (query.roleName) {
+    const roleExist = await roleDao.findRole({ name: query.roleName });
+    if (!roleExist) return { users: [], count: 0 };
+    searchAdvance = { role: roleExist._id };
+  }
+  const { users, count } = await userDao.findUsers({
+    search,
+    fields,
+    offset,
+    limit,
+    sort,
+    query: searchAdvance,
+  });
   return { users, count };
 };
 
