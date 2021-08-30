@@ -25,6 +25,9 @@ router.put('/campaigns/service', getCampaign, updateServiceValidate, asyncMiddle
 router.put('/campaigns/status', getCampaign, updateStatusValidate, asyncMiddleware(campaignController.updateStatusCampaign));
 router.put('/campaigns/intents', auth, getCampaign, asyncMiddleware(campaignController.syncIntents));
 router.put('/campaigns/:campaignId', getCampaign, updateCampaignValidate, asyncMiddleware(campaignController.updateCampaign));
+
+router.put('/participant/add', auth, getCampaign, asyncMiddleware(campaignController.addParticipant));
+router.put('/participant/delete', auth, getCampaign, asyncMiddleware(campaignController.deleteParticipant));
 /* eslint-enable prettier/prettier */
 
 module.exports = router;
