@@ -15,18 +15,22 @@ const findCampaigns = async ({
   fields,
   sort,
 }) => {
-  const { status, campaignVisibility, service, participantStatus, user } =
+  const { status, campaignVisibility, serviceId, participantStatus, user } =
     query;
   let advanceSearch = {};
-  if (service) advanceSearch.service = service;
+  if (serviceId) advanceSearch.serviceId = serviceId;
   if (campaignVisibility) advanceSearch.campaignVisibility = campaignVisibility;
-
-  if (user.role.name === CAMPAIGN_USER_ROLE.USER) {
+  const userId = user._id;
+  if (
+    user.role &&
+    user.role.name &&
+    user.role.name === CAMPAIGN_USER_ROLE.USER
+  ) {
     if (participantStatus === PARTICIPANT_STATUS.MY_CAMPAIGN) {
-      advanceSearch.participants = { $elemMatch: { user: user._id } };
+      advanceSearch.participants = { $elemMatch: { userId } };
     } else if (participantStatus === PARTICIPANT_STATUS.OTHER_CAMPAIGN) {
       advanceSearch.participants = {
-        $not: { $elemMatch: { user: user._id } },
+        $not: { $elemMatch: { userId } },
       };
     }
     advanceSearch = {
@@ -34,7 +38,11 @@ const findCampaigns = async ({
       status: status || { $ne: CAMPAIGN_STATUS.DRAFT },
       campaignVisibility: CAMPAIGN_VISIBILITY.PUBLIC,
     };
-  } else if (user.role.name === CAMPAIGN_USER_ROLE.ADMIN) {
+  } else if (
+    user.role &&
+    user.role.name &&
+    user.role.name === CAMPAIGN_USER_ROLE.ADMIN
+  ) {
     const statusField = status ? { status } : {};
     advanceSearch = { ...advanceSearch, ...statusField };
   }
@@ -55,11 +63,37 @@ const findCampaigns = async ({
 };
 
 const findCampaign = async (condition) => {
-  const campaign = await Campaign.findOne(condition)
-    .lean()
-    .populate('service')
-    .populate('participants.user')
-    .exec();
+  const [campaign] = await Campaign.aggregate(
+    { $match: condition },
+    {
+      $lookup: {
+        from: 'services',
+        localField: 'serviceId',
+        foreignField: '_id',
+        as: 'service',
+      },
+    },
+    { $unwind: '$service' },
+    { $unwind: '$participants' },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'participants.userId',
+        foreignField: '_id',
+        as: 'participants.user',
+      },
+    },
+    { $unwind: '$participants.user' },
+    {
+      $group: {
+        _id: '$_id',
+        root: { $mergeObjects: '$$ROOT' },
+        participants: { $push: '$participants' },
+      },
+    },
+    { $replaceRoot: { newRoot: { $mergeObjects: ['$root', '$$ROOT'] } } },
+    { $project: { root: 0 } },
+  );
   return campaign;
 };
 

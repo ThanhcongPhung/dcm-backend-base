@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+
+const { ObjectId } = mongoose.Types;
 const CustomError = require('../errors/CustomError');
 const code = require('../errors/code');
 const intentDao = require('../daos/intent');
@@ -26,6 +29,9 @@ const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
 };
 
 const getCampaign = async (campaign) => {
+  if (!campaign.service || !campaign.service.url)
+    throw new CustomError(code.BAD_REQUEST, 'url of service is not exists');
+
   const response = await serviceCampaign.getServiceCampaign(
     campaign._id,
     campaign.service.url,
@@ -66,7 +72,7 @@ const createCampaign = async ({
     image,
     startTime,
     endTime,
-    service: serviceId,
+    serviceId,
     action,
     appId,
     botId,
@@ -152,37 +158,34 @@ const deleteCampaign = async (campaignId) => {
   await campaignDao.deleteCampaign(campaignId);
 };
 
-const joinCampaign = async (user, campaign) => {
+const joinCampaign = async (userId, campaignId, participants) => {
   const role = await roleDao.findRole({ name: CAMPAIGN_USER_ROLE.USER });
   if (!role) throw new CustomError(code.BAD_REQUEST, 'Role is not exists');
-
-  let { participants } = campaign;
   const hasJoined = participants.some(
-    (item) => String(item.user) === String(user._id),
+    (item) => String(item.user) === String(userId),
   );
   if (hasJoined) throw new CustomError(code.BAD_REQUEST, 'User joined');
-  participants = [...participants, { user: user._id, role: role._id }];
 
-  const joinResult = await campaignDao.updateCampaign(campaign._id, {
-    participants,
+  const newParticipants = [...participants, { user: userId, role: role._id }];
+  const joinResult = await campaignDao.updateCampaign(campaignId, {
+    participants: newParticipants,
   });
 
   return joinResult;
 };
 
-const leaveCampaign = async (user, campaign) => {
-  let { participants } = campaign;
+const leaveCampaign = async (userId, campaignId, participants) => {
   const hasJoined = participants.some(
-    (item) => String(item.user) === String(user._id),
+    (item) => String(item.user) === String(userId),
   );
   if (!hasJoined)
     throw new CustomError(code.BAD_REQUEST, 'User has not joined');
-  participants = participants.filter(
-    (item) => String(item.user) !== String(user._id),
-  );
 
-  const result = await campaignDao.updateCampaign(campaign._id, {
-    participants,
+  const newParticipants = participants.filter(
+    (item) => String(item.user) !== String(userId),
+  );
+  const result = await campaignDao.updateCampaign(campaignId, {
+    participants: newParticipants,
   });
   return result;
 };
@@ -263,24 +266,22 @@ const getParticipants = (participants) =>
   participants.map((participant) => ({
     userId: participant.user._id,
     email: participant.user.email,
-    roleId: participant.role,
+    role: participant.role,
   }));
 
-const addParticipant = async (campaignId, participants, userId, roleId) => {
-  const userExist = await userDao.findUser({ _id: userId });
+const addParticipant = async (campaignId, participants, userId, role) => {
+  const userExist = await userDao.findUser({ _id: ObjectId(userId) });
   if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
-  const role = await roleDao.findRole({ _id: roleId });
-  if (!role) throw new CustomError(code.BAD_REQUEST, 'Role is not exists');
   const isAdded = participants.some((item) => String(item.user._id) === userId);
   if (isAdded) throw new CustomError(code.BAD_REQUEST, 'User added');
 
   await campaignDao.updateCampaign(campaignId, {
-    participants: [...participants, { user: userId, role: roleId }],
+    participants: [...participants, { user: userId, role }],
   });
 };
 
 const deleteParticipant = async (campaignId, participants, userId) => {
-  const userExist = await userDao.findUser({ _id: userId });
+  const userExist = await userDao.findUser({ _id: ObjectId(userId) });
   if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
 
   const remainingParticipants = participants.filter(

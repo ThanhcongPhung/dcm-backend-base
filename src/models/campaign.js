@@ -11,15 +11,15 @@ const campaignSchema = new mongoose.Schema(
     participants: [
       {
         _id: false,
-        user: { type: ObjectId, ref: 'User' },
-        role: { type: ObjectId, ref: 'Role' },
+        userId: { type: ObjectId, ref: 'User' },
+        role: String,
         status: String,
       },
     ],
     campaignType: String,
     status: String,
     campaignVisibility: String,
-    service: { type: ObjectId, ref: 'Service' },
+    serviceId: { type: ObjectId, ref: 'Service' },
     action: String,
     appId: String,
     botId: String,

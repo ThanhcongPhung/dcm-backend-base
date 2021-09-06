@@ -3,6 +3,7 @@ const { A_WEEK } = require('../constants');
 module.exports = {
   PORT: process.env.PORT || 3000,
   MONGO_URI: process.env.MONGO_URI,
+  REDIS_URI: process.env.REDIS_URI,
   JWT_EXPIRES_TIME: parseInt(process.env.JWT_EXPIRES_TIME, 10) || A_WEEK,
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   CLIENT_SECRET: process.env.CLIENT_SECRET,

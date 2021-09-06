@@ -20,7 +20,7 @@ const getCampaigns = async (req, res) => {
     participantStatus,
     campaignVisibility,
     status,
-    service: serviceId,
+    serviceId,
     user,
   };
   if (search) query.search = search;
@@ -76,14 +76,24 @@ const deleteCampaign = async (req, res) => {
 };
 
 const joinCampaign = async (req, res) => {
-  const { campaign, user } = req;
-  const joinResult = await campaignService.joinCampaign(user, campaign);
+  const { _id: userId } = req.user;
+  const { _id: campaignId, participants } = req.campaign;
+  const joinResult = await campaignService.joinCampaign(
+    userId,
+    campaignId,
+    participants,
+  );
   return res.send({ status: 1, result: joinResult });
 };
 
 const leaveCampaign = async (req, res) => {
-  const { campaign, user } = req;
-  const leaveResult = await campaignService.leaveCampaign(user, campaign);
+  const { _id: userId } = req.user;
+  const { _id: campaignId, participants } = req.campaign;
+  const leaveResult = await campaignService.leaveCampaign(
+    userId,
+    campaignId,
+    participants,
+  );
   return res.send({ status: 1, result: leaveResult });
 };
 
