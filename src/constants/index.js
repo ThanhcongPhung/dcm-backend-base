@@ -40,6 +40,13 @@ const CAMPAIGN_TYPE = {
   ASR: 'ASR',
 };
 
+const CAMPAIGN_ROLE = {
+  MANAGER: 'MANAGER',
+  CONTRIBUTOR: 'CONTRIBUTOR',
+  REVIEWER: 'REVIEWER',
+  VIEWER: 'VIEWER',
+};
+
 module.exports = {
   A_WEEK: 7 * 86400 * 1000,
   CAMPAIGN_STATUS,
@@ -49,4 +56,5 @@ module.exports = {
   INTENT_STATUS,
   CAMPAIGN_TYPE,
   SYSTEM_ROLE,
+  CAMPAIGN_ROLE,
 };

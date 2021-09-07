@@ -147,15 +147,37 @@ const getParticipants = async (req, res) => {
 
 const addParticipant = async (req, res) => {
   const { _id: campaignId, participants } = req.campaign;
-  const { userId, role } = req.body;
-  await campaignService.addParticipant(campaignId, participants, userId, role);
+  const { participantId, role } = req.body;
+  await campaignService.addParticipant({
+    campaignId,
+    participants,
+    participantId,
+    role,
+  });
   return res.send({ status: 1 });
 };
 
 const deleteParticipant = async (req, res) => {
   const { _id: campaignId, participants } = req.campaign;
-  const { userId } = req.body;
-  await campaignService.deleteParticipant(campaignId, participants, userId);
+  const { participantId } = req.params;
+  await campaignService.deleteParticipant(
+    campaignId,
+    participants,
+    participantId,
+  );
+  return res.send({ status: 1 });
+};
+
+const editRoleParticipant = async (req, res) => {
+  const { _id: campaignId, participants } = req.campaign;
+  const { participantId } = req.params;
+  const { role } = req.body;
+  await campaignService.editRoleParticipant({
+    campaignId,
+    participants,
+    participantId,
+    role,
+  });
   return res.send({ status: 1 });
 };
 
@@ -174,4 +196,5 @@ module.exports = {
   getParticipants,
   addParticipant,
   deleteParticipant,
+  editRoleParticipant,
 };

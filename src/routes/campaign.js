@@ -9,6 +9,7 @@ const {
   updateCampaignValidate,
   updateServiceValidate,
   updateStatusValidate,
+  participantValidate,
 } = require('../validations/campaign');
 
 /* eslint-disable prettier/prettier */
@@ -26,8 +27,9 @@ router.put('/campaigns/status', getCampaign, updateStatusValidate, asyncMiddlewa
 router.put('/campaigns/intents', auth, getCampaign, asyncMiddleware(campaignController.syncIntents));
 router.put('/campaigns/:campaignId', getCampaign, updateCampaignValidate, asyncMiddleware(campaignController.updateCampaign));
 
-router.put('/participant/add', auth, getCampaign, asyncMiddleware(campaignController.addParticipant));
-router.put('/participant/delete', auth, getCampaign, asyncMiddleware(campaignController.deleteParticipant));
+router.post('/participants', auth, getCampaign, participantValidate, asyncMiddleware(campaignController.addParticipant));
+router.delete('/participants/:participantId', auth, getCampaign, asyncMiddleware(campaignController.deleteParticipant));
+router.put('/participants/:participantId', auth, getCampaign, participantValidate, asyncMiddleware(campaignController.editRoleParticipant));
 /* eslint-enable prettier/prettier */
 
 module.exports = router;

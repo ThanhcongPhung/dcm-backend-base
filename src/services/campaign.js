@@ -264,27 +264,57 @@ const getParticipants = async (campaignId) => {
     userId: participant.user._id,
     email: participant.user.email,
     role: participant.role,
+    avatar: participant.avatar,
   }));
 };
 
-const addParticipant = async (campaignId, participants, userId, role) => {
-  const userExist = await userDao.findUser({ _id: ObjectId(userId) });
+const addParticipant = async ({
+  campaignId,
+  participants,
+  participantId,
+  role,
+}) => {
+  const userExist = await userDao.findUser({ _id: ObjectId(participantId) });
   if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
-  const isAdded = participants.some((item) => String(item.userId) === userId);
+  const isAdded = participants.some(
+    (item) => String(item.userId) === participantId,
+  );
   if (isAdded) throw new CustomError(code.BAD_REQUEST, 'User added');
 
   await campaignDao.updateCampaign(campaignId, {
-    participants: [...participants, { userId, role }],
+    participants: [...participants, { userId: participantId, role }],
   });
 };
 
-const deleteParticipant = async (campaignId, participants, userId) => {
-  const userExist = await userDao.findUser({ _id: ObjectId(userId) });
+const deleteParticipant = async (campaignId, participants, participantId) => {
+  const userExist = await userDao.findUser({ _id: ObjectId(participantId) });
   if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
 
   const remainingParticipants = participants.filter(
-    (item) => String(item.userId) !== userId,
+    (item) => String(item.userId) !== participantId,
   );
+  await campaignDao.updateCampaign(campaignId, {
+    participants: remainingParticipants,
+  });
+};
+
+const editRoleParticipant = async ({
+  campaignId,
+  participants,
+  participantId,
+  role,
+}) => {
+  const userExist = await userDao.findUser({ _id: ObjectId(participantId) });
+  if (!userExist) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
+
+  const index = participants.findIndex(
+    (item) => String(item.userId) === participantId,
+  );
+  if (index === -1)
+    throw new CustomError(code.BAD_REQUEST, 'User has not joined');
+
+  const remainingParticipants = participants;
+  remainingParticipants[index] = { userId: participantId, role };
   await campaignDao.updateCampaign(campaignId, {
     participants: remainingParticipants,
   });
@@ -305,4 +335,5 @@ module.exports = {
   getParticipants,
   addParticipant,
   deleteParticipant,
+  editRoleParticipant,
 };

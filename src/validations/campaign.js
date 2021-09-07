@@ -3,6 +3,7 @@ const {
   CAMPAIGN_VISIBILITY,
   CAMPAIGN_STATUS,
   CAMPAIGN_TYPE,
+  CAMPAIGN_ROLE,
 } = require('../constants');
 
 const createCampaign = {
@@ -55,9 +56,19 @@ const updateStatusCampaign = {
   }),
 };
 
+const participant = {
+  body: Joi.object({
+    participantId: Joi.string(),
+    role: Joi.string()
+      .valid(...Object.values(CAMPAIGN_ROLE))
+      .required(),
+  }),
+};
+
 module.exports = {
   createCampaignValidate: validate(createCampaign, { keyByField: true }),
   updateCampaignValidate: validate(updateCampaign, { keyByField: true }),
   updateServiceValidate: validate(updateServiceCampaign, { keyByField: true }),
   updateStatusValidate: validate(updateStatusCampaign, { keyByField: true }),
+  participantValidate: validate(participant, { keyByField: true }),
 };
