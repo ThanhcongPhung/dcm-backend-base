@@ -10,8 +10,8 @@ const serviceSchema = new mongoose.Schema(
     actions: [String],
     owner: [
       {
-        user: { type: ObjectId, ref: 'User' },
-        role: { type: ObjectId, ref: 'Role' },
+        userId: { type: ObjectId, ref: 'User' },
+        roleId: { type: ObjectId, ref: 'Role' },
       },
     ],
   },

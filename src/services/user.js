@@ -8,7 +8,7 @@ const getUsers = async ({ search, fields, offset, limit, sort, query }) => {
   if (query.roleName) {
     const roleExist = await roleDao.findRole({ name: query.roleName });
     if (!roleExist) return { users: [], count: 0 };
-    searchAdvance = { role: roleExist._id };
+    searchAdvance = { roleId: roleExist._id };
   }
   const { users, count } = await userDao.findUsers({
     search,

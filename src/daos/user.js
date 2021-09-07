@@ -7,10 +7,18 @@ const createUser = async (newUser) => {
 };
 
 const findUser = async (condition) => {
-  const user = await User.findOne(condition)
-    .lean()
-    .populate({ path: 'role', select: 'name' })
-    .exec();
+  const [user] = await User.aggregate([
+    { $match: condition },
+    {
+      $lookup: {
+        from: 'roles',
+        as: 'role',
+        localField: 'roleId',
+        foreignField: '_id',
+      },
+    },
+    { $unwind: '$role' },
+  ]);
   return user;
 };
 
@@ -20,6 +28,7 @@ const updateUser = async (id, updateFields) => {
   }).lean();
   return user;
 };
+
 const findUsers = async ({ search, query, offset, limit, fields, sort }) => {
   const { documents: users, count } = await daoUtils.findAll(User, ['email'], {
     search,
