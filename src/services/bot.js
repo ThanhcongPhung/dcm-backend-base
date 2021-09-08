@@ -1,4 +1,6 @@
 const callApi = require('../utils/callApi');
+const CustomError = require('../errors/CustomError');
+const code = require('../errors/code');
 
 const {
   APP_API_URL,
@@ -10,7 +12,7 @@ const {
 const getApp = async (appId) => {
   const options = {
     method: 'GET',
-    url: `${APP_API_URL}/apps/${appId}`,
+    url: `${APP_API_URL}/api/v1/apps/${appId}`,
     headers: {
       Authorization: `Bearer ${APP_SECRET_TOKEN}`,
     },
@@ -23,7 +25,7 @@ const getIntents = async (botId) => {
   try {
     const options = {
       method: 'GET',
-      url: `${BOT_API_URL}/intents`,
+      url: `${BOT_API_URL}/api/v2/intents`,
       headers: {
         'bot-id': botId,
         Authorization: `Bearer ${BOT_SECRET_KEY}`,
@@ -36,7 +38,10 @@ const getIntents = async (botId) => {
     const response = await callApi(options);
     return response.result.intents;
   } catch (error) {
-    return error.response;
+    throw new CustomError(
+      code.BAD_REQUEST,
+      'get intents for bot integrate failed',
+    );
   }
 };
 
