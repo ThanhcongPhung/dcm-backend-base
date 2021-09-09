@@ -43,6 +43,18 @@ const getServiceCampaign = () => {
           ],
         },
       ],
+      intents: [
+        {
+          id: '6112358d5e1f033538712dcf',
+          displayName: 'Hỏi tuổi',
+          name: 'hoi_tuoi',
+        },
+        {
+          id: '6112358d5e1f033538712dd1',
+          displayName: 'Khen',
+          name: 'khen',
+        },
+      ],
     },
   };
 };
