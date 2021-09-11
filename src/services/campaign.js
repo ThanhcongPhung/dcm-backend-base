@@ -137,11 +137,12 @@ const updateServiceCampaign = async (campaign, detailCampaign) => {
   if (!campaign.service || (campaign.service && !campaign.service.url))
     throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
 
-  const result = await serviceCampaign.updateServiceCampaign(
-    campaign._id,
-    campaign.service.url,
+  const result = await serviceCampaign.updateServiceCampaign({
+    campaignId: campaign._id,
+    serviceUrl: campaign.service.url,
     detailCampaign,
-  );
+    campaignType: campaign.campaignType,
+  });
   if (!result.status) throw new CustomError(code.BAD_REQUEST, 'Update failure');
   if (campaign.status === CAMPAIGN_STATUS.DRAFT)
     await campaignDao.updateCampaign(campaign._id, {
