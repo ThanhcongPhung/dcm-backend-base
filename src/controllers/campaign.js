@@ -1,5 +1,5 @@
 const campaignService = require('../services/campaign');
-const { INTENT_STATUS } = require('../constants');
+const { INTENT_STATUS, CAMPAIGN_STATUS } = require('../constants');
 
 const getCampaigns = async (req, res) => {
   const { user } = req;
@@ -44,6 +44,9 @@ const getCampaigns = async (req, res) => {
 
 const getCampaign = async (req, res) => {
   const { campaign } = req;
+  if (campaign.status === CAMPAIGN_STATUS.DRAFT)
+    return res.send({ status: 1, result: campaign });
+
   const campaignInfo = await campaignService.getCampaign(campaign);
   return res.send({ status: 1, result: campaignInfo });
 };

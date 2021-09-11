@@ -7,10 +7,13 @@ const intentDao = require('../daos/intent');
 const serviceDao = require('../daos/service');
 const campaignDao = require('../daos/campaign');
 const botService = require('./bot');
-const roleDao = require('../daos/role');
 const userDao = require('../daos/user');
 const serviceCampaign = require('./serviceCampaign');
-const { CAMPAIGN_STATUS, INTENT_STATUS, SYSTEM_ROLE } = require('../constants');
+const {
+  CAMPAIGN_STATUS,
+  INTENT_STATUS,
+  CAMPAIGN_ROLE,
+} = require('../constants');
 
 const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
   const { campaigns, count } = await campaignDao.findCampaigns({
@@ -134,11 +137,12 @@ const updateServiceCampaign = async (campaign, detailCampaign) => {
   if (!campaign.service || (campaign.service && !campaign.service.url))
     throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
 
-  const result = await serviceCampaign.updateServiceCampaign(
-    campaign._id,
-    campaign.service.url,
+  const result = await serviceCampaign.updateServiceCampaign({
+    campaignId: campaign._id,
+    serviceUrl: campaign.service.url,
     detailCampaign,
-  );
+    campaignType: campaign.campaignType,
+  });
   if (!result.status) throw new CustomError(code.BAD_REQUEST, 'Update failure');
   if (campaign.status === CAMPAIGN_STATUS.DRAFT)
     await campaignDao.updateCampaign(campaign._id, {
@@ -152,14 +156,15 @@ const deleteCampaign = async (campaignId) => {
 };
 
 const joinCampaign = async (userId, campaignId, participants) => {
-  const role = await roleDao.findRole({ name: SYSTEM_ROLE.USER });
-  if (!role) throw new CustomError(code.BAD_REQUEST, 'Role is not exists');
   const hasJoined = participants.some(
     (item) => String(item.user) === String(userId),
   );
   if (hasJoined) throw new CustomError(code.BAD_REQUEST, 'User joined');
 
-  const newParticipants = [...participants, { user: userId, role: role._id }];
+  const newParticipants = [
+    ...participants,
+    { userId, role: CAMPAIGN_ROLE.CONTRIBUTOR },
+  ];
   const joinResult = await campaignDao.updateCampaign(campaignId, {
     participants: newParticipants,
   });
@@ -169,13 +174,13 @@ const joinCampaign = async (userId, campaignId, participants) => {
 
 const leaveCampaign = async (userId, campaignId, participants) => {
   const hasJoined = participants.some(
-    (item) => String(item.user) === String(userId),
+    (item) => String(item.userId) === String(userId),
   );
   if (!hasJoined)
     throw new CustomError(code.BAD_REQUEST, 'User has not joined');
 
   const newParticipants = participants.filter(
-    (item) => String(item.user) !== String(userId),
+    (item) => String(item.userId) !== String(userId),
   );
   const result = await campaignDao.updateCampaign(campaignId, {
     participants: newParticipants,
@@ -264,7 +269,9 @@ const getParticipants = async (campaignId) => {
     userId: participant.user._id,
     email: participant.user.email,
     role: participant.role,
-    avatar: participant.avatar,
+    avatar: participant.user.avatar,
+    name: participant.user.name,
+    createdAt: participant.user.createdAt,
   }));
 };
 

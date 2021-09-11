@@ -1,50 +1,27 @@
-// const callApi = require('../utils/callApi');
+const callApi = require('../utils/callApi');
 
-const updateServiceCampaign = () => {
-  // const options = {
-  //   method: 'POST',
-  //   url: `${serviceExist.url}/campaigns`,
-  //   params: {
-  //     campaignInfo: detailCampaign,
-  //     campaignId,
-  //   },
-  // };
-  // const response = await callApi(options);
-  // return response;
-  return {
-    status: 1,
+const updateServiceCampaign = async ({
+  campaignId,
+  serviceUrl,
+  detailCampaign,
+  campaignType,
+}) => {
+  const options = {
+    method: 'POST',
+    url: `${serviceUrl}/campaigns`,
+    data: { campaignId, detailCampaign, campaignType },
   };
+  const response = await callApi(options);
+  return response;
 };
-const getServiceCampaign = () => {
-  // const options = {
-  //   method: 'GET',
-  //   url: `${serviceExist.url}/campaigns/${campaignId}`,
-  // };
-  // const response = await callApi(options);
-  // return response;
-  return {
-    status: 1,
-    result: {
-      usecases: [
-        {
-          id: '6112358d5e1f033538712dcfaa',
-          name: 'kich ban 1',
-          intents: [
-            {
-              id: '6112358d5e1f033538712dcf',
-              displayName: 'Hỏi tuổi',
-              name: 'hoi_tuoi',
-            },
-            {
-              id: '6112358d5e1f033538712dd1',
-              displayName: 'Khen',
-              name: 'khen',
-            },
-          ],
-        },
-      ],
-    },
+
+const getServiceCampaign = async (campaignId, serviceUrl) => {
+  const options = {
+    method: 'GET',
+    url: `${serviceUrl}/campaigns/${campaignId}`,
   };
+  const response = await callApi(options);
+  return response;
 };
 
 module.exports = {
