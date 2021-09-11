@@ -1,50 +1,43 @@
-// const callApi = require('../utils/callApi');
+const callApi = require('../utils/callApi');
+const CustomError = require('../errors/CustomError');
+const code = require('../errors/code');
 
-const updateServiceCampaign = () => {
-  // const options = {
-  //   method: 'POST',
-  //   url: `${serviceExist.url}/campaigns`,
-  //   params: {
-  //     campaignInfo: detailCampaign,
-  //     campaignId,
-  //   },
-  // };
-  // const response = await callApi(options);
-  // return response;
-  return {
-    status: 1,
-  };
+const updateServiceCampaign = async ({
+  campaignId,
+  serviceUrl,
+  detailCampaign,
+  campaignType,
+}) => {
+  try {
+    const options = {
+      method: 'POST',
+      url: `${serviceUrl}/webhooks`,
+      data: { campaignId, detailCampaign, campaignType },
+    };
+    const response = await callApi(options);
+    return response;
+  } catch (error) {
+    throw new CustomError(
+      code.BAD_REQUEST,
+      'update campaign info from failed sub service',
+    );
+  }
 };
-const getServiceCampaign = () => {
-  // const options = {
-  //   method: 'GET',
-  //   url: `${serviceExist.url}/campaigns/${campaignId}`,
-  // };
-  // const response = await callApi(options);
-  // return response;
-  return {
-    status: 1,
-    result: {
-      usecases: [
-        {
-          id: '6112358d5e1f033538712dcfaa',
-          name: 'kich ban 1',
-          intents: [
-            {
-              id: '6112358d5e1f033538712dcf',
-              displayName: 'Hỏi tuổi',
-              name: 'hoi_tuoi',
-            },
-            {
-              id: '6112358d5e1f033538712dd1',
-              displayName: 'Khen',
-              name: 'khen',
-            },
-          ],
-        },
-      ],
-    },
-  };
+
+const getServiceCampaign = async (campaignId, serviceUrl) => {
+  try {
+    const options = {
+      method: 'GET',
+      url: `${serviceUrl}/campaigns/${campaignId}`,
+    };
+    const response = await callApi(options);
+    return response;
+  } catch (error) {
+    throw new CustomError(
+      code.BAD_REQUEST,
+      'get campaign info from failed sub service',
+    );
+  }
 };
 
 module.exports = {

@@ -19,7 +19,7 @@ const createCampaign = {
     campaignType: Joi.string()
       .valid(...Object.values(CAMPAIGN_TYPE))
       .required(),
-    action: Joi.string().required(),
+    actions: Joi.array().items(Joi.string()).required(),
     serviceId: Joi.string().required(),
     appId: Joi.string().allow(''),
     botId: Joi.string().allow(''),
