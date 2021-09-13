@@ -1,6 +1,10 @@
+const mongoose = require('mongoose');
+
+const { ObjectId } = mongoose.Types;
 const serviceDao = require('../daos/service');
 const CustomError = require('../errors/CustomError');
 const code = require('../errors/code');
+const campaignDao = require('../daos/campaign');
 
 const getServices = async ({ search, fields, offset, limit, sort, query }) => {
   const { services, count } = await serviceDao.findServices({
@@ -43,6 +47,14 @@ const deleteService = async (serviceId) => {
   const serviceExist = await serviceDao.findService(serviceId);
   if (!serviceExist)
     throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
+  const campaignExist = await campaignDao.findCampaign({
+    serviceId: ObjectId(serviceId),
+  });
+  if (campaignExist)
+    throw new CustomError(
+      code.SERVICE_USED,
+      'The service is being used in a campaign',
+    );
 
   await serviceDao.deleteService(serviceId);
 };
