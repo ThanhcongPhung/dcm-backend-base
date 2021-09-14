@@ -49,17 +49,15 @@ const createCampaign = async ({
   startTime,
   endTime,
   serviceId,
-  action,
+  actions,
   campaignType,
   appId,
   botId,
+  participants,
 }) => {
   const service = await serviceDao.findService(serviceId);
   if (!service)
     throw new CustomError(code.BAD_REQUEST, 'Service is not exists');
-  const actionExist = service.actions.find((item) => item === action);
-  if (!actionExist)
-    throw new CustomError(code.BAD_REQUEST, 'action is invalid');
   const typeExist = service.campaignTypes.find((item) => item === campaignType);
   if (!typeExist)
     throw new CustomError(code.BAD_REQUEST, 'campaign type is invalid');
@@ -72,11 +70,11 @@ const createCampaign = async ({
     startTime,
     endTime,
     serviceId,
-    action,
+    actions,
     appId,
     botId,
     campaignType,
-    participants: [],
+    participants,
     status: CAMPAIGN_STATUS.DRAFT,
   });
   if (botId) {

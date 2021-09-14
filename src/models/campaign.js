@@ -20,7 +20,7 @@ const campaignSchema = new mongoose.Schema(
     status: String,
     campaignVisibility: String,
     serviceId: { type: ObjectId, ref: 'Service' },
-    action: String,
+    actions: [String],
     appId: String,
     botId: String,
   },

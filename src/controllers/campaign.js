@@ -1,5 +1,9 @@
 const campaignService = require('../services/campaign');
-const { INTENT_STATUS, CAMPAIGN_STATUS } = require('../constants');
+const {
+  INTENT_STATUS,
+  CAMPAIGN_STATUS,
+  CAMPAIGN_ROLE,
+} = require('../constants');
 
 const getCampaigns = async (req, res) => {
   const { user } = req;
@@ -52,7 +56,12 @@ const getCampaign = async (req, res) => {
 };
 
 const createCampaign = async (req, res) => {
-  const campaign = await campaignService.createCampaign(req.body);
+  const { _id: userId } = req.user;
+  const participants = [{ userId, role: CAMPAIGN_ROLE.MANAGER }];
+  const campaign = await campaignService.createCampaign({
+    ...req.body,
+    participants,
+  });
   return res.send({ status: 1, result: campaign });
 };
 

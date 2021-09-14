@@ -17,7 +17,7 @@ router.get('/campaigns', auth, asyncMiddleware(campaignController.getCampaigns))
 router.get('/campaigns/intents', getCampaign, asyncMiddleware(campaignController.getIntents));
 router.get('/campaigns/participants', auth, getCampaign, asyncMiddleware(campaignController.getParticipants));
 router.get('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.getCampaign));
-router.post('/campaigns', createCampaignValidate, asyncMiddleware(campaignController.createCampaign));
+router.post('/campaigns',auth, createCampaignValidate, asyncMiddleware(campaignController.createCampaign));
 router.delete('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.deleteCampaign));
 
 router.post('/campaigns/join', auth, getCampaign, asyncMiddleware(campaignController.joinCampaign));
