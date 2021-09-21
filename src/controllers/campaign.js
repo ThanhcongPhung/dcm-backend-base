@@ -48,8 +48,12 @@ const getCampaigns = async (req, res) => {
 
 const getCampaign = async (req, res) => {
   const { campaign } = req;
-  if (campaign.status === CAMPAIGN_STATUS.DRAFT)
-    return res.send({ status: 1, result: campaign });
+  const { fields } = req.query;
+  if (
+    campaign.status === CAMPAIGN_STATUS.DRAFT ||
+    !fields.includes('detailCampaign')
+  )
+    return res.send({ status: 1, result: { ...campaign, detailCampaign: {} } });
 
   const campaignInfo = await campaignService.getCampaign(campaign);
   return res.send({ status: 1, result: campaignInfo });
@@ -57,7 +61,7 @@ const getCampaign = async (req, res) => {
 
 const createCampaign = async (req, res) => {
   const { _id: userId } = req.user;
-  const participants = [{ userId, role: CAMPAIGN_ROLE.MANAGER }];
+  const participants = [{ userId, role: CAMPAIGN_ROLE.OWNER }];
   const campaign = await campaignService.createCampaign({
     ...req.body,
     participants,
