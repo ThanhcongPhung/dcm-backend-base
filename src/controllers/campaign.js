@@ -48,9 +48,11 @@ const getCampaigns = async (req, res) => {
 
 const getCampaign = async (req, res) => {
   const { campaign } = req;
-  const { fields } = req.query;
+  let { fields } = req.query;
+  if (fields) fields = fields.split(',');
   if (
     campaign.status === CAMPAIGN_STATUS.DRAFT ||
+    !fields ||
     !fields.includes('detailCampaign')
   )
     return res.send({ status: 1, result: { ...campaign, detailCampaign: {} } });
