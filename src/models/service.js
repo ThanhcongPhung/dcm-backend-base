@@ -8,12 +8,7 @@ const serviceSchema = new mongoose.Schema(
     url: String,
     inputs: [String],
     actions: [String],
-    owner: [
-      {
-        userId: { type: ObjectId, ref: 'User' },
-        roleId: { type: ObjectId, ref: 'Role' },
-      },
-    ],
+    managers: [{ type: ObjectId, ref: 'User' }],
   },
   {
     timestamps: true,

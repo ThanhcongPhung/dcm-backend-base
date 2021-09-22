@@ -1,5 +1,8 @@
+const CustomError = require('../errors/CustomError');
+const codes = require('../errors/code');
 const Campaign = require('../models/campaign');
 const daoUtils = require('./utils');
+const serviceDao = require('./service');
 const {
   PARTICIPANT_STATUS,
   CAMPAIGN_VISIBILITY,
@@ -22,26 +25,44 @@ const findCampaigns = async ({
   if (campaignVisibility) advanceSearch.campaignVisibility = campaignVisibility;
 
   const userId = user._id;
-  if (user.role && user.role.name && user.role.name === SYSTEM_ROLE.USER) {
-    if (participantStatus === PARTICIPANT_STATUS.MY_CAMPAIGN) {
-      advanceSearch.participants = { $elemMatch: { userId } };
-    } else if (participantStatus === PARTICIPANT_STATUS.OTHER_CAMPAIGN) {
-      advanceSearch.participants = {
-        $not: { $elemMatch: { userId } },
+  const userRole = (user.role && user.role.name) || '';
+
+  switch (userRole) {
+    case SYSTEM_ROLE.USER: {
+      if (participantStatus === PARTICIPANT_STATUS.MY_CAMPAIGN) {
+        advanceSearch.participants = { $elemMatch: { userId } };
+      } else if (participantStatus === PARTICIPANT_STATUS.OTHER_CAMPAIGN) {
+        advanceSearch.participants = {
+          $not: { $elemMatch: { userId } },
+        };
+      }
+      advanceSearch = {
+        ...advanceSearch,
+        status: status || { $ne: CAMPAIGN_STATUS.DRAFT },
+        campaignVisibility: CAMPAIGN_VISIBILITY.PUBLIC,
       };
+      break;
     }
-    advanceSearch = {
-      ...advanceSearch,
-      status: status || { $ne: CAMPAIGN_STATUS.DRAFT },
-      campaignVisibility: CAMPAIGN_VISIBILITY.PUBLIC,
-    };
-  } else if (
-    user.role &&
-    user.role.name &&
-    user.role.name === SYSTEM_ROLE.ADMIN
-  ) {
-    const statusField = status ? { status } : {};
-    advanceSearch = { ...advanceSearch, ...statusField };
+    case SYSTEM_ROLE.ADMIN: {
+      const statusField = status ? { status } : {};
+      advanceSearch = { ...advanceSearch, ...statusField };
+      break;
+    }
+    case SYSTEM_ROLE.SERVICE_MANAGER: {
+      const serviceSearch = { managers: { $elemMatch: { $eq: userId } } };
+      const { services } = await serviceDao.findServices({
+        query: serviceSearch,
+      });
+      const serviceIds = services.map((item) => item._id);
+      const serviceIdField = serviceIds.length
+        ? { serviceId: { $in: serviceIds } }
+        : {};
+      const statusField = status ? { status } : {};
+      advanceSearch = { ...advanceSearch, ...statusField, ...serviceIdField };
+      break;
+    }
+    default:
+      throw new CustomError(codes.UNAUTHORIZED);
   }
 
   const { documents: campaigns, count } = await daoUtils.findAll(

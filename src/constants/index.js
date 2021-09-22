@@ -19,6 +19,7 @@ const SSO_EVENT = {
 
 const SYSTEM_ROLE = {
   ADMIN: 'ADMIN',
+  SERVICE_MANAGER: 'SERVICE_MANAGER',
   USER: 'USER',
 };
 
