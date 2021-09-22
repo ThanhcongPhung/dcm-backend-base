@@ -48,10 +48,34 @@ const deleteService = async (req, res) => {
   return res.send({ status: 1 });
 };
 
+const getServiceManagers = async (req, res) => {
+  const { _id: serviceId, managers } = req.service;
+  if (!managers || !managers.length) return res.send({ status: 1, result: [] });
+  const detailManagers = await serviceService.getServiceManagers(serviceId);
+  return res.send({ status: 1, result: detailManagers });
+};
+
+const addManager = async (req, res) => {
+  const { _id: serviceId, managers } = req.service;
+  const { managerId } = req.params;
+  await serviceService.addManager(serviceId, managers, managerId);
+  return res.send({ status: 1 });
+};
+
+const deleteManager = async (req, res) => {
+  const { _id: serviceId, managers } = req.service;
+  const { managerId } = req.params;
+  await serviceService.deleteManager(serviceId, managers, managerId);
+  return res.send({ status: 1 });
+};
+
 module.exports = {
   getServices,
   getService,
   createService,
   updateService,
   deleteService,
+  getServiceManagers,
+  addManager,
+  deleteManager,
 };

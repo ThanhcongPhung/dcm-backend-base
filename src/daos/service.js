@@ -38,10 +38,29 @@ const deleteService = async (serviceId) => {
   await Service.findByIdAndDelete(serviceId);
 };
 
+const getServiceManagers = async (condition) => {
+  const [service] = await Service.aggregate([
+    { $match: condition },
+    { $unwind: '$managers' },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'managers',
+        foreignField: '_id',
+        as: 'managers',
+      },
+    },
+    { $unwind: '$managers' },
+    { $group: { _id: '$_id', managers: { $push: '$managers' } } },
+  ]);
+  return service.managers;
+};
+
 module.exports = {
   findServices,
   findService,
   createService,
   updateService,
   deleteService,
+  getServiceManagers,
 };
