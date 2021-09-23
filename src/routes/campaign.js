@@ -21,6 +21,7 @@ router.post('/campaigns',auth, createCampaignValidate, asyncMiddleware(campaignC
 router.delete('/campaigns/:campaignId', getCampaign, asyncMiddleware(campaignController.deleteCampaign));
 
 router.post('/campaigns/join', auth, getCampaign, asyncMiddleware(campaignController.joinCampaign));
+router.post('/campaigns/accept-invitation', auth, getCampaign, asyncMiddleware(campaignController.acceptInvitedCampaign));
 router.post('/campaigns/leave', auth, getCampaign, asyncMiddleware(campaignController.leaveCampaign));
 router.put('/campaigns/service', getCampaign, updateServiceValidate, asyncMiddleware(campaignController.updateServiceCampaign));
 router.put('/campaigns/status', getCampaign, updateStatusValidate, asyncMiddleware(campaignController.updateStatusCampaign));

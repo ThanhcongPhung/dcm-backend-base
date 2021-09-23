@@ -9,10 +9,12 @@ const campaignDao = require('../daos/campaign');
 const botService = require('./bot');
 const userDao = require('../daos/user');
 const serviceCampaign = require('./serviceCampaign');
+const { addParticipantCampaign } = require('./serviceCampaign');
 const {
   CAMPAIGN_STATUS,
   INTENT_STATUS,
   CAMPAIGN_ROLE,
+  PARTICIPATION_STATUS,
 } = require('../constants');
 
 const getCampaigns = async ({ search, fields, offset, limit, sort, query }) => {
@@ -153,16 +155,63 @@ const deleteCampaign = async (campaignId) => {
   await campaignDao.deleteCampaign(campaignId);
 };
 
-const joinCampaign = async (userId, campaignId, participants) => {
-  const hasJoined = participants.some(
-    (item) => String(item.user) === String(userId),
+const joinCampaign = async ({
+  userId,
+  campaignId,
+  participants,
+  serviceUrl,
+}) => {
+  const participant = participants.find(
+    (item) => String(item.userId) === String(userId),
   );
-  if (hasJoined) throw new CustomError(code.BAD_REQUEST, 'User joined');
+  if (
+    participant &&
+    participant.status &&
+    participant.status === PARTICIPATION_STATUS.INVITED
+  )
+    throw new CustomError(code.BAD_REQUEST, 'User is invited');
+  if (participant) {
+    throw new CustomError(code.BAD_REQUEST, 'User is joined');
+  }
 
   const newParticipants = [
     ...participants,
-    { userId, role: CAMPAIGN_ROLE.CONTRIBUTOR },
+    {
+      userId,
+      role: CAMPAIGN_ROLE.CONTRIBUTOR,
+      status: PARTICIPATION_STATUS.JOINED,
+    },
   ];
+  await addParticipantCampaign(campaignId, userId, serviceUrl);
+  const joinResult = await campaignDao.updateCampaign(campaignId, {
+    participants: newParticipants,
+  });
+  return joinResult;
+};
+
+const acceptInvitedCampaign = async ({
+  userId,
+  campaignId,
+  participants,
+  serviceUrl,
+}) => {
+  const participantIndex = participants.findIndex(
+    (item) => String(item.userId) === String(userId),
+  );
+  if (participantIndex === -1)
+    throw new CustomError(code.BAD_REQUEST, 'User has not invited');
+  const participant = participants[participantIndex];
+  const isInvalidInvitation =
+    !participant.status || participant.status === PARTICIPATION_STATUS.JOINED;
+  if (isInvalidInvitation)
+    throw new CustomError(code.BAD_REQUEST, 'User is joined');
+
+  const newParticipants = participants;
+  newParticipants[participantIndex] = {
+    ...participant,
+    status: PARTICIPATION_STATUS.JOINED,
+  };
+  await addParticipantCampaign(campaignId, userId, serviceUrl);
   const joinResult = await campaignDao.updateCampaign(campaignId, {
     participants: newParticipants,
   });
@@ -270,6 +319,7 @@ const getParticipants = async (campaignId) => {
     avatar: participant.user.avatar,
     name: participant.user.name,
     createdAt: participant.user.createdAt,
+    status: participant.status,
   }));
 };
 
@@ -287,7 +337,10 @@ const addParticipant = async ({
   if (isAdded) throw new CustomError(code.BAD_REQUEST, 'User added');
 
   await campaignDao.updateCampaign(campaignId, {
-    participants: [...participants, { userId: participantId, role }],
+    participants: [
+      ...participants,
+      { userId: participantId, role, status: PARTICIPATION_STATUS.INVITED },
+    ],
   });
 };
 
@@ -333,6 +386,7 @@ module.exports = {
   updateServiceCampaign,
   deleteCampaign,
   joinCampaign,
+  acceptInvitedCampaign,
   leaveCampaign,
   updateStatusCampaign,
   getIntents,

@@ -40,7 +40,25 @@ const getServiceCampaign = async (campaignId, serviceUrl) => {
   }
 };
 
+const addParticipantCampaign = async (campaignId, userId, serviceUrl) => {
+  try {
+    const options = {
+      method: 'POST',
+      url: `${serviceUrl}/participants/${userId}`,
+      headers: { 'campaign-id': campaignId },
+    };
+    const response = await callApi(options);
+    return response;
+  } catch (error) {
+    throw new CustomError(
+      code.BAD_REQUEST,
+      'add participant into campaign from failed sub service',
+    );
+  }
+};
+
 module.exports = {
   updateServiceCampaign,
   getServiceCampaign,
+  addParticipantCampaign,
 };
