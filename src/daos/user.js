@@ -30,9 +30,13 @@ const updateUser = async (id, updateFields) => {
 };
 
 const findUsers = async ({ search, query, offset, limit, fields, sort }) => {
+  let searchAdvance = {};
+  if (query && query.roleIds) {
+    searchAdvance = { roleId: { $in: query.roleIds } };
+  }
   const { documents: users, count } = await daoUtils.findAll(User, ['email'], {
     search,
-    query,
+    query: searchAdvance,
     offset,
     limit,
     fields,

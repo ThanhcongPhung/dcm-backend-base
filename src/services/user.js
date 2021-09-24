@@ -5,10 +5,12 @@ const roleDao = require('../daos/role');
 
 const getUsers = async ({ search, fields, offset, limit, sort, query }) => {
   let searchAdvance = {};
-  if (query.roleName) {
-    const roleExist = await roleDao.findRole({ name: query.roleName });
-    if (!roleExist) return { users: [], count: 0 };
-    searchAdvance = { roleId: roleExist._id };
+  const roleName = query && query.roleName;
+  if (roleName) {
+    const { roles } = await roleDao.findRoles({ query: roleName });
+    if (!roles.length) return { users: [], count: 0 };
+    const roleIds = roles.map((item) => item._id);
+    searchAdvance = { roleIds };
   }
   const { users, count } = await userDao.findUsers({
     search,
