@@ -4,7 +4,7 @@ const Campaign = require('../models/campaign');
 const daoUtils = require('./utils');
 const serviceDao = require('./service');
 const {
-  PARTICIPANT_STATUS,
+  CAMPAIGN_OWNERSHIP_TYPE,
   CAMPAIGN_VISIBILITY,
   SYSTEM_ROLE,
   CAMPAIGN_STATUS,
@@ -29,9 +29,9 @@ const findCampaigns = async ({
 
   switch (userRole) {
     case SYSTEM_ROLE.USER: {
-      if (participantStatus === PARTICIPANT_STATUS.MY_CAMPAIGN) {
+      if (participantStatus === CAMPAIGN_OWNERSHIP_TYPE.MY_CAMPAIGN) {
         advanceSearch.participants = { $elemMatch: { userId } };
-      } else if (participantStatus === PARTICIPANT_STATUS.OTHER_CAMPAIGN) {
+      } else if (participantStatus === CAMPAIGN_OWNERSHIP_TYPE.OTHER_CAMPAIGN) {
         advanceSearch.participants = {
           $not: { $elemMatch: { userId } },
         };

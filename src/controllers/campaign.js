@@ -92,12 +92,27 @@ const deleteCampaign = async (req, res) => {
 
 const joinCampaign = async (req, res) => {
   const { _id: userId } = req.user;
-  const { _id: campaignId, participants } = req.campaign;
-  const joinResult = await campaignService.joinCampaign(
+  const { _id: campaignId, participants, service } = req.campaign;
+  const serviceUrl = service && service.url;
+  const joinResult = await campaignService.joinCampaign({
     userId,
     campaignId,
     participants,
-  );
+    serviceUrl,
+  });
+  return res.send({ status: 1, result: joinResult });
+};
+
+const acceptInvitedCampaign = async (req, res) => {
+  const { _id: userId } = req.user;
+  const { _id: campaignId, participants, service } = req.campaign;
+  const serviceUrl = service && service.url;
+  const joinResult = await campaignService.acceptInvitedCampaign({
+    userId,
+    campaignId,
+    participants,
+    serviceUrl,
+  });
   return res.send({ status: 1, result: joinResult });
 };
 
@@ -207,6 +222,7 @@ module.exports = {
   updateServiceCampaign,
   deleteCampaign,
   joinCampaign,
+  acceptInvitedCampaign,
   leaveCampaign,
   updateStatusCampaign,
   getIntents,
