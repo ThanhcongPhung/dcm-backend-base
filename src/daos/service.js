@@ -2,12 +2,16 @@ const Service = require('../models/service');
 const daoUtils = require('./utils');
 
 const findServices = async ({ search, query, offset, limit, fields, sort }) => {
+  let advanceSearch = {};
+  const managerIds = query && query.managerIds;
+  if (managerIds) advanceSearch = { managers: { $in: managerIds } };
+
   const { documents: services, count } = await daoUtils.findAll(
     Service,
     ['name'],
     {
       search,
-      query,
+      query: advanceSearch,
       offset,
       limit,
       fields,

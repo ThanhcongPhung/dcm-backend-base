@@ -2,7 +2,8 @@ const userService = require('../services/user');
 
 const getUsers = async (req, res) => {
   const { search, fields, offset, limit, sort, roleName } = req.query;
-  const query = { roleName };
+  const query = {};
+  query.query = { roleName };
   if (search) query.search = search;
   if (fields) query.fields = fields.split(',');
   if (offset) query.offset = parseInt(offset, 10);
