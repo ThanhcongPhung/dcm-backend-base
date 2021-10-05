@@ -55,6 +55,7 @@ const createCampaign = async ({
   campaignType,
   appId,
   botId,
+  apiKey,
   participants,
 }) => {
   const service = await serviceDao.findService(serviceId);
@@ -75,6 +76,7 @@ const createCampaign = async ({
     actions,
     appId,
     botId,
+    apiKey,
     campaignType,
     participants,
     status: CAMPAIGN_STATUS.DRAFT,
@@ -104,6 +106,7 @@ const updateCampaign = async (campaign, updateFields) => {
     endTime,
     appId,
     botId,
+    apiKey,
   } = updateFields;
 
   if (botId && botId !== campaign.botId) {
@@ -129,6 +132,7 @@ const updateCampaign = async (campaign, updateFields) => {
     endTime,
     appId,
     botId,
+    apiKey,
   });
   return newCampaign;
 };

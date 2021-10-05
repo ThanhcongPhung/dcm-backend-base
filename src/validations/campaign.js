@@ -23,6 +23,7 @@ const createCampaign = {
     serviceId: Joi.string().required(),
     appId: Joi.string().allow(''),
     botId: Joi.string().allow(''),
+    apiKey: Joi.string().allow(''),
   }),
 };
 
@@ -38,6 +39,7 @@ const updateCampaign = {
       .required(),
     appId: Joi.string().allow(''),
     botId: Joi.string().allow(''),
+    apiKey: Joi.string().allow(''),
   }),
 };
 
