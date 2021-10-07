@@ -23,6 +23,7 @@ const campaignSchema = new mongoose.Schema(
     actions: [String],
     appId: String,
     botId: String,
+    apiKey: String,
   },
   {
     timestamps: true,
