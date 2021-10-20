@@ -47,6 +47,9 @@ const updateServiceCampaign = {
   body: Joi.object().keys({
     intents: Joi.array(),
     usecases: Joi.array(),
+    intentIds: Joi.array(),
+    tags: Joi.array(),
+    target: Joi.number(),
   }),
 };
 
