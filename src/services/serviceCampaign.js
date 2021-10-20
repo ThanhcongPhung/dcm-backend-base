@@ -40,12 +40,18 @@ const getServiceCampaign = async (campaignId, serviceUrl) => {
   }
 };
 
-const addParticipantCampaign = async (campaignId, userId, serviceUrl) => {
+const addParticipantCampaign = async ({
+  campaignId,
+  userId,
+  role,
+  serviceUrl,
+}) => {
   try {
     const options = {
       method: 'POST',
       url: `${serviceUrl}/participants/${userId}`,
       headers: { 'campaign-id': campaignId },
+      params: { role },
     };
     const response = await callApi(options);
     return response;
