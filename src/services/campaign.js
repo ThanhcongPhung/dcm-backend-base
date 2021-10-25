@@ -186,7 +186,7 @@ const joinCampaign = async ({
       status: PARTICIPATION_STATUS.JOINED,
     },
   ];
-  await addParticipantCampaign(campaignId, userId, serviceUrl);
+  await addParticipantCampaign({ campaignId, userId, serviceUrl });
   const joinResult = await campaignDao.updateCampaign(campaignId, {
     participants: newParticipants,
   });

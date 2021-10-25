@@ -3,7 +3,7 @@ package-lock.json
 
 # Build
 build/
-
+.idea
 # Logs
 logs
 *.log
