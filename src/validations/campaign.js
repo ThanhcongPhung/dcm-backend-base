@@ -50,6 +50,8 @@ const updateServiceCampaign = {
     intentIds: Joi.array(),
     tags: Joi.array(),
     target: Joi.number(),
+    collectionAudio: Joi.array(),
+    validAudioRoom: Joi.array(),
   }),
 };
 

@@ -54,7 +54,7 @@ const updateUser = async (userId, updateFields) => {
 };
 
 const getUser = async (userId) => {
-  const user = await userDao.findUser({ _id: userId });
+  const user = await userDao.findUser({ _id: ObjectId(userId) });
   if (!user) throw new CustomError(code.BAD_REQUEST, 'User is not exists');
   return user;
 };
